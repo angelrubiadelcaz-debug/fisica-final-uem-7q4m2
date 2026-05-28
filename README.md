@@ -112,6 +112,30 @@ Cada pregunta exportada incluye:
 - `formula`
 - `tipo`
 
+## Escribir formulas con LaTeX
+
+La web usa KaTeX y `react-latex-next` para renderizar matematicas.
+
+Puedes escribir formulas en linea:
+
+```js
+String.raw`\(v = \lambda f\)`
+```
+
+Y formulas en bloque:
+
+```js
+String.raw`\[Q = mc\Delta T\]`
+```
+
+Ejemplo de pregunta con formula:
+
+```js
+enunciado: String.raw`Una onda cumple \(v = \lambda f\). Si aumenta \(f\) y \(v\) permanece constante, ¿que ocurre con \(\lambda\)?`
+```
+
+Si escribes formulas simples como `v = v0 + a t` o `Q = c m Delta T`, el componente `MathText` intenta normalizarlas automaticamente. Aun asi, para preguntas nuevas es mejor escribir LaTeX directamente con `String.raw`.
+
 ## Anadir formulas
 
 Edita:

@@ -1,4 +1,5 @@
 import { BarChart3, CheckCircle2, RotateCcw, XCircle } from "lucide-react";
+import MathText from "./MathText";
 
 export default function ResultsPanel({ result, onRetry, onPracticeFailed, onNewQuiz }) {
   const topicFailures = Object.entries(result.wrongByTopic).sort((a, b) => b[1] - a[1]);
@@ -88,7 +89,7 @@ export default function ResultsPanel({ result, onRetry, onPracticeFailed, onNewQ
               <span>Pregunta {index + 1}</span>
               <strong className={isCorrect ? "ok-text" : "ko-text"}>{isCorrect ? "Correcta" : "Incorrecta"}</strong>
             </div>
-            <h3>{question.enunciado}</h3>
+            <MathText as="h3">{question.enunciado}</MathText>
             <div className="review-options">
               {question.opciones.map((option, optionIndex) => {
                 const isAnswer = optionIndex === question.correcta;
@@ -99,13 +100,13 @@ export default function ResultsPanel({ result, onRetry, onPracticeFailed, onNewQ
                     key={option}
                   >
                     <span>{String.fromCharCode(65 + optionIndex)}</span>
-                    <p>{option}</p>
+                    <MathText as="p">{option}</MathText>
                   </div>
                 );
               })}
             </div>
-            <p className="explanation">{question.explicacion}</p>
-            {question.formula && <code>{question.formula}</code>}
+            <MathText as="p" className="explanation">{question.explicacion}</MathText>
+            {question.formula && <MathText as="div" block className="math-card-formula">{question.formula}</MathText>}
           </article>
         ))}
       </div>

@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { formulas } from "../data/formulas";
+import MathText from "./MathText";
 
 export default function FormulaPanel() {
   const [topic, setTopic] = useState("all");
@@ -40,23 +41,23 @@ export default function FormulaPanel() {
               <span className="formula-topic">{formula.tema}</span>
               <h3>{formula.nombre}</h3>
             </div>
-            <code>{formula.formula}</code>
-            <p>
-              <strong>Variables:</strong> {formula.variables}
-            </p>
-            <p>
-              <strong>Uso:</strong> {formula.uso}
-            </p>
-            <p>
-              <strong>Unidad:</strong> {formula.unidad}
-            </p>
-            <p>
-              <strong>Error tipico:</strong> {formula.advertencia}
-            </p>
+            <MathText as="div" block className="math-card-formula">{formula.formula}</MathText>
+            <MathText as="p">
+              {`Variables: ${formula.variables}`}
+            </MathText>
+            <MathText as="p">
+              {`Uso: ${formula.uso}`}
+            </MathText>
+            <MathText as="p">
+              {`Unidad: ${formula.unidad}`}
+            </MathText>
+            <MathText as="p">
+              {`Error tipico: ${formula.advertencia}`}
+            </MathText>
             {formula.ejemplo && (
-              <p>
-                <strong>Ejemplo:</strong> {formula.ejemplo}
-              </p>
+              <MathText as="p">
+                {`Ejemplo: ${formula.ejemplo}`}
+              </MathText>
             )}
           </article>
         ))}

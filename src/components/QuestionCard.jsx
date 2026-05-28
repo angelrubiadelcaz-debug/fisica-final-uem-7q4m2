@@ -1,4 +1,5 @@
 import { ArrowLeft, ArrowRight, CheckCircle2, Flag, Send } from "lucide-react";
+import MathText from "./MathText";
 import TheoryBox from "./TheoryBox";
 
 export default function QuestionCard({
@@ -32,7 +33,7 @@ export default function QuestionCard({
             <span>{question.tema}</span>
           </div>
           <p className="subtopic">{question.subtema}</p>
-          <h2>{question.enunciado}</h2>
+          <MathText as="h2">{question.enunciado}</MathText>
 
           <div className="options-list">
             {question.opciones.map((option, index) => {
@@ -47,7 +48,7 @@ export default function QuestionCard({
                   onClick={() => onSelect(index)}
                 >
                   <span className="option-letter">{String.fromCharCode(65 + index)}</span>
-                  <span>{option}</span>
+                  <MathText>{option}</MathText>
                 </button>
               );
             })}
@@ -58,8 +59,8 @@ export default function QuestionCard({
               <CheckCircle2 size={18} />
               <div>
                 <strong>{selected === question.correcta ? "Correcta" : "Revisa esta"}</strong>
-                <p>{question.explicacion}</p>
-                {question.formula && <code>{question.formula}</code>}
+                <MathText as="p">{question.explicacion}</MathText>
+                {question.formula && <MathText as="div" block className="math-card-formula">{question.formula}</MathText>}
               </div>
             </div>
           )}

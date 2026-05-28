@@ -1,5 +1,6 @@
 import { ArrowLeft, BookOpen, Zap } from "lucide-react";
 import { useMemo } from "react";
+import MathText from "./MathText";
 
 export default function ExamLastMinute({ cards, onBack, onPractice }) {
   const groups = useMemo(() => {
@@ -37,9 +38,9 @@ export default function ExamLastMinute({ cards, onBack, onPractice }) {
               <ul>
                 {topicCards.slice(0, 6).map((card) => (
                   <li key={card.id}>
-                    {card.formula && <code>{card.formula}</code>}
-                    <span>{card.miniEjemplo}</span>
-                    <em>{card.errorTipico}</em>
+                    {card.formula && <MathText as="div" block className="math-card-formula compact">{card.formula}</MathText>}
+                    <MathText as="span">{card.miniEjemplo}</MathText>
+                    <MathText as="em">{card.errorTipico}</MathText>
                   </li>
                 ))}
               </ul>

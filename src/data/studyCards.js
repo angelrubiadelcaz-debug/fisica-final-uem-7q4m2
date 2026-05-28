@@ -1,4 +1,5 @@
 import { questions } from "./questions.js";
+import { toDisplayLatex } from "../utils/mathFormat.js";
 
 const T1 = "Tema 1";
 const T2 = "Tema 2";
@@ -1614,6 +1615,7 @@ export const studyCards = rawStudyCards.map((sourceCard) => {
   const { relatedTerms, ...card } = sourceCard;
   return {
     ...card,
+    formula: card.formula ? toDisplayLatex(card.formula) : "",
     relatedQuestionIds: relatedQuestionIdsFor(sourceCard),
   };
 });

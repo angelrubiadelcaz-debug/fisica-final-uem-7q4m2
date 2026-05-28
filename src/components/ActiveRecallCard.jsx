@@ -1,4 +1,5 @@
 import { Eye, HelpCircle } from "lucide-react";
+import MathText from "./MathText";
 
 export default function ActiveRecallCard({ card, revealed, onReveal }) {
   return (
@@ -7,14 +8,14 @@ export default function ActiveRecallCard({ card, revealed, onReveal }) {
       <h2>{card.titulo}</h2>
       <div className="active-question">
         <HelpCircle size={22} />
-        <p>{card.preguntaActiva}</p>
+        <MathText as="p">{card.preguntaActiva}</MathText>
       </div>
       {revealed ? (
         <div className="active-answer">
           <strong>Respuesta</strong>
-          <p>{card.respuestaActiva}</p>
-          {card.formula && <code>{card.formula}</code>}
-          <p className="mistake-line">{card.errorTipico}</p>
+          <MathText as="p">{card.respuestaActiva}</MathText>
+          {card.formula && <MathText as="div" block className="math-card-formula">{card.formula}</MathText>}
+          <MathText as="p" className="mistake-line">{card.errorTipico}</MathText>
         </div>
       ) : (
         <button className="primary big-action" type="button" onClick={onReveal}>

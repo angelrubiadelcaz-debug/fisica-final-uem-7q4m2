@@ -1,7 +1,9 @@
+import { toDisplayLatex } from "../utils/mathFormat.js";
+
 const f = (tema, nombre, formula, variables, uso, unidad, ejemplo = "", advertencia = "") => ({
   tema,
   nombre,
-  formula,
+  formula: toDisplayLatex(formula),
   variables,
   uso,
   unidad,

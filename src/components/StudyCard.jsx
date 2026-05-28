@@ -1,6 +1,7 @@
 import { BookOpen, CheckCircle2, Eye, EyeOff, HelpCircle, RotateCcw, XCircle } from "lucide-react";
 import { useState } from "react";
 import { getStudyCardState } from "../utils/studyStorage";
+import MathText from "./MathText";
 
 const statusLabel = {
   dominado: "Entendido",
@@ -24,12 +25,12 @@ export default function StudyCard({ card, progress, onMark, onPractice }) {
         <span className={`study-status status-${state.status}`}>{statusLabel[state.status]}</span>
       </div>
 
-      <p className="study-short">{card.explicacionCorta}</p>
+      <MathText as="p" className="study-short">{card.explicacionCorta}</MathText>
 
       {card.formula && (
         <div className="formula-highlight">
           <span>Formula</span>
-          <code>{card.formula}</code>
+          <MathText as="div" block className="math-card-formula">{card.formula}</MathText>
         </div>
       )}
 
@@ -45,22 +46,24 @@ export default function StudyCard({ card, progress, onMark, onPractice }) {
               <strong>Variables</strong>
               <ul>
                 {card.variables.map((variable) => (
-                  <li key={variable}>{variable}</li>
+                  <li key={variable}>
+                    <MathText>{variable}</MathText>
+                  </li>
                 ))}
               </ul>
             </div>
           )}
           <div>
             <strong>Cuando se usa</strong>
-            <p>{card.cuandoSeUsa}</p>
+            <MathText as="p">{card.cuandoSeUsa}</MathText>
           </div>
           <div className="mistake-box">
             <strong>Error tipico</strong>
-            <p>{card.errorTipico}</p>
+            <MathText as="p">{card.errorTipico}</MathText>
           </div>
           <div>
             <strong>Mini ejemplo</strong>
-            <p>{card.miniEjemplo}</p>
+            <MathText as="p">{card.miniEjemplo}</MathText>
           </div>
         </div>
       )}
@@ -70,9 +73,9 @@ export default function StudyCard({ card, progress, onMark, onPractice }) {
           <HelpCircle size={18} />
           <strong>Pregunta rapida</strong>
         </div>
-        <p>{card.preguntaActiva}</p>
+        <MathText as="p">{card.preguntaActiva}</MathText>
         {showAnswer ? (
-          <p className="recall-answer">{card.respuestaActiva}</p>
+          <MathText as="p" className="recall-answer">{card.respuestaActiva}</MathText>
         ) : (
           <p className="recall-hidden">Intenta responder antes de abrir.</p>
         )}

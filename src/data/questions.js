@@ -1,4 +1,5 @@
 import { extraQuestionSpecs } from "./extraQuestions.js";
+import { toDisplayLatex } from "../utils/mathFormat.js";
 
 const T1 = "Tema 1: Cinematica, dinamica y electrostatica en el vacio";
 const T2 = "Tema 2: Potencial, conductores, capacitores y dielectricos";
@@ -140,7 +141,7 @@ const q = (tema, subtema, dificultad, enunciado, opciones, correcta, explicacion
   correcta,
   explicacion,
   teoria: teoria || defaultTheory(tema, subtema, formula),
-  formula,
+  formula: formula ? toDisplayLatex(formula) : "",
   tipo: tipo || inferType(enunciado, formula, subtema),
 });
 

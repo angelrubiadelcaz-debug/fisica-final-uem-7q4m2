@@ -1,5 +1,6 @@
 import { Eye, EyeOff, Lightbulb } from "lucide-react";
 import { useEffect, useState } from "react";
+import MathText from "./MathText";
 
 export default function TheoryBox({ question, mode, theoryMode }) {
   const [open, setOpen] = useState(mode === "repaso" || theoryMode === "con-teoria");
@@ -27,7 +28,7 @@ export default function TheoryBox({ question, mode, theoryMode }) {
             <Lightbulb size={16} />
             {question.tipo}
           </div>
-          <p>{question.teoria}</p>
+          <MathText as="p">{question.teoria}</MathText>
           <dl>
             <div>
               <dt>Tema</dt>
