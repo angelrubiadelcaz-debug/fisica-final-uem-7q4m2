@@ -28,23 +28,24 @@ npm run build
 
 La carpeta generada es `dist/`.
 
-## Desplegar en GitHub Pages
+## Publicacion en GitHub Pages
 
-El proyecto ya incluye:
-
-- `vite.config.js` preparado para usar una base correcta en GitHub Pages.
-- `.github/workflows/deploy.yml` para publicar automaticamente la carpeta `dist`.
-
-El workflow calcula la base con el nombre real del repositorio:
-
-```text
-VITE_BASE_PATH: /${{ github.event.repository.name }}/
-```
-
-Por eso funcionara en una URL del tipo:
+Este repositorio esta publicado con la rama `gh-pages`, que contiene la carpeta `dist` ya compilada. La web queda disponible en una URL del tipo:
 
 ```text
 https://<usuario>.github.io/<NOMBRE_REPO>/
+```
+
+Para este proyecto:
+
+```text
+https://angelrubiadelcaz-debug.github.io/test-final-fisica/
+```
+
+`vite.config.js` esta preparado para usar una base correcta en GitHub Pages. Para compilar manualmente para este repositorio:
+
+```bash
+VITE_BASE_PATH=/test-final-fisica/ npm run build
 ```
 
 ## Configurar GitHub Pages
@@ -55,13 +56,14 @@ En GitHub:
 2. Entra en `Settings`.
 3. Entra en `Pages`.
 4. En `Build and deployment`, selecciona:
-   - `Source`: `GitHub Actions`
-5. Haz push a `main` o `master`.
-6. Espera a que termine el workflow `Deploy to GitHub Pages`.
+   - `Source`: `Deploy from a branch`
+   - `Branch`: `gh-pages`
+   - `Folder`: `/ (root)`
+5. Guarda los cambios y espera a que GitHub termine de publicar.
 
 ## Si cambia el nombre del repositorio
 
-No tienes que tocar nada si despliegas con el workflow incluido. Si quieres compilar manualmente para un repositorio concreto:
+Compila usando el nombre nuevo del repositorio:
 
 ```bash
 VITE_BASE_PATH=/NOMBRE_REPO/ npm run build
