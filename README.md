@@ -39,13 +39,13 @@ https://<usuario>.github.io/<NOMBRE_REPO>/
 Para este proyecto:
 
 ```text
-https://angelrubiadelcaz-debug.github.io/test-final-fisica/
+https://angelrubiadelcaz-debug.github.io/fisica-final-uem-7q4m2/
 ```
 
 `vite.config.js` esta preparado para usar una base correcta en GitHub Pages. Para compilar manualmente para este repositorio:
 
 ```bash
-VITE_BASE_PATH=/test-final-fisica/ npm run build
+VITE_BASE_PATH=/fisica-final-uem-7q4m2/ npm run build
 ```
 
 ## Configurar GitHub Pages
