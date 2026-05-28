@@ -1,10 +1,11 @@
-import { BarChart3, BookOpen, ClipboardList, Home, ListChecks } from "lucide-react";
+import { BarChart3, BookOpen, Brain, ClipboardList, Home, ListChecks } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import FormulaPanel from "./components/FormulaPanel";
 import QuestionCard from "./components/QuestionCard";
 import ResultsPanel from "./components/ResultsPanel";
 import SetupPanel from "./components/SetupPanel";
 import StatsPanel from "./components/StatsPanel";
+import StudyMode from "./components/StudyMode";
 import { questions, topics } from "./data/questions";
 import { getFilteredQuestions, gradeQuiz, pickQuestions } from "./utils/quiz";
 import { clearProgress, loadProgress, mergeResultIntoProgress, saveProgress } from "./utils/storage";
@@ -13,6 +14,7 @@ const DEFAULT_COUNT = 20;
 
 export default function App() {
   const [section, setSection] = useState("test");
+  const [studyView, setStudyView] = useState("cards");
   const [selectedTopics, setSelectedTopics] = useState(["all"]);
   const [difficulty, setDifficulty] = useState("all");
   const [search, setSearch] = useState("");
@@ -81,6 +83,13 @@ export default function App() {
     setSection("test");
   }
 
+  function goStudy(nextView = "cards") {
+    setStudyView(nextView);
+    setSection("study");
+    setResult(null);
+    setQuizQuestions([]);
+  }
+
   function startQuiz() {
     beginQuiz(pickQuestions(pool, count));
   }
@@ -97,6 +106,13 @@ export default function App() {
   function practiceFailed() {
     if (!failedQuestions.length) return;
     beginQuiz(pickQuestions(failedQuestions, failedQuestions.length), "repaso");
+  }
+
+  function practiceStudyConcept(card) {
+    const related = questions.filter((question) => card.relatedQuestionIds.includes(question.id));
+    if (!related.length) return;
+    setTheoryMode("con-teoria");
+    beginQuiz(pickQuestions(related, Math.min(12, related.length)), "repaso");
   }
 
   function finishQuiz() {
@@ -143,6 +159,10 @@ export default function App() {
             <BookOpen size={18} />
             Formulario
           </button>
+          <button className={section === "study" ? "active" : ""} type="button" onClick={() => goStudy("cards")}>
+            <Brain size={18} />
+            Estudiar rapido
+          </button>
           <button className={section === "stats" ? "active" : ""} type="button" onClick={() => setSection("stats")}>
             <BarChart3 size={18} />
             Estadisticas
@@ -158,6 +178,8 @@ export default function App() {
 
       {section === "formulas" ? (
         <FormulaPanel />
+      ) : section === "study" ? (
+        <StudyMode initialView={studyView} onPracticeConcept={practiceStudyConcept} />
       ) : section === "stats" ? (
         <StatsPanel progress={progress} onReset={resetProgress} onPracticeFailed={practiceFailed} failedCount={failedQuestions.length} />
       ) : result ? (
@@ -219,6 +241,10 @@ export default function App() {
             onStart={startQuiz}
             onStartFinal={startFinalSimulation}
             onPracticeFailed={practiceFailed}
+            onGoStudy={() => goStudy("cards")}
+            onGoLastMinute={() => goStudy("last-minute")}
+            onGoFormulas={() => setSection("formulas")}
+            onGoStats={() => setSection("stats")}
           />
           <section className="coverage-strip">
             <div>

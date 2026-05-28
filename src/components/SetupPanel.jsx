@@ -1,4 +1,4 @@
-import { BookOpen, ClipboardCheck, Filter, Play, RotateCcw, Search, Trash2 } from "lucide-react";
+import { BarChart3, BookOpen, Brain, ClipboardCheck, Clock, Filter, Play, RotateCcw, Search, Trash2 } from "lucide-react";
 import { difficultyLabel } from "../utils/quiz";
 
 export default function SetupPanel({
@@ -20,13 +20,51 @@ export default function SetupPanel({
   onStart,
   onStartFinal,
   onPracticeFailed,
+  onGoStudy,
+  onGoLastMinute,
+  onGoFormulas,
+  onGoStats,
 }) {
   const countOptions = [10, 20, 30, 40, 60, 100, maxCount]
     .filter((value, index, list) => value > 0 && value <= maxCount && list.indexOf(value) === index);
   const isAll = selectedTopics.includes("all");
 
   return (
-    <section className="setup-grid">
+    <section className="setup-shell">
+      <div className="quick-start-grid">
+        <button className="quick-start-card primary-card" type="button" onClick={onStart} disabled={maxCount === 0}>
+          <Play size={22} />
+          <strong>Empezar test</strong>
+          <span>Preguntas tipo examen con correccion final.</span>
+        </button>
+        <button className="quick-start-card" type="button" onClick={onGoStudy}>
+          <Brain size={22} />
+          <strong>Estudiar rapido</strong>
+          <span>Tarjetas cortas con teoria, formulas y errores tipicos.</span>
+        </button>
+        <button className="quick-start-card" type="button" onClick={onPracticeFailed} disabled={!failedCount}>
+          <RotateCcw size={22} />
+          <strong>Repasar falladas</strong>
+          <span>Solo preguntas que ya has fallado.</span>
+        </button>
+        <button className="quick-start-card" type="button" onClick={onGoLastMinute}>
+          <Clock size={22} />
+          <strong>10 minutos antes</strong>
+          <span>Resumen urgente con lo mas importante.</span>
+        </button>
+        <button className="quick-start-card" type="button" onClick={onGoFormulas}>
+          <BookOpen size={22} />
+          <strong>Formulario</strong>
+          <span>Formulas, variables, unidades y avisos.</span>
+        </button>
+        <button className="quick-start-card" type="button" onClick={onGoStats}>
+          <BarChart3 size={22} />
+          <strong>Estadisticas</strong>
+          <span>Aciertos, fallos y temas que conviene reforzar.</span>
+        </button>
+      </div>
+
+      <div className="setup-grid">
       <div className="setup-panel">
         <div className="panel-heading">
           <BookOpen size={22} />
@@ -132,6 +170,7 @@ export default function SetupPanel({
           <span>Mas teoria e interpretacion que calculo largo</span>
           <span>Temas 4-6 reforzados para el examen final</span>
         </div>
+      </div>
       </div>
     </section>
   );

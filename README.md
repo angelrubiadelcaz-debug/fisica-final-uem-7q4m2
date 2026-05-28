@@ -122,6 +122,66 @@ src/data/formulas.js
 
 Cada formula incluye tema, nombre, formula, variables, uso, unidad, ejemplo y advertencia/error tipico.
 
+## Modo estudio
+
+La pestaña `Estudiar rapido` sirve para repasar teoria en tarjetas pequenas:
+
+- concepto,
+- explicacion corta,
+- formula,
+- variables,
+- cuando se usa,
+- error tipico,
+- mini ejemplo,
+- pregunta rapida de recuerdo activo.
+
+El progreso se guarda en `localStorage` con estados:
+
+- `dominado`,
+- `dudoso`,
+- `repasar`.
+
+Tambien guarda fecha del ultimo repaso y numero de veces repasada cada tarjeta.
+
+## Anadir tarjetas de estudio
+
+Edita:
+
+```text
+src/data/studyCards.js
+```
+
+Cada tarjeta tiene campos como:
+
+```js
+{
+  id: "ondas-v-lambda-f",
+  tema: "Ondas",
+  subtema: "Magnitudes de una onda",
+  prioridad: "alta",
+  titulo: "Velocidad, frecuencia y longitud de onda",
+  explicacionCorta: "En una onda periodica, velocidad, frecuencia y longitud de onda estan ligadas.",
+  formula: "v = lambda f",
+  variables: ["v: velocidad, en m/s", "lambda: longitud de onda, en m", "f: frecuencia, en Hz"],
+  cuandoSeUsa: "Cuando relacionan frecuencia, longitud de onda o velocidad.",
+  errorTipico: "Pensar que f y lambda aumentan juntas si v no cambia.",
+  miniEjemplo: "Si v es constante y f aumenta, lambda disminuye.",
+  preguntaActiva: "Si v permanece constante y f aumenta, que ocurre con lambda?",
+  respuestaActiva: "Disminuye.",
+  etiquetas: ["ondas", "frecuencia", "longitud de onda"]
+}
+```
+
+El archivo calcula `relatedQuestionIds` a partir del banco de preguntas, el tema, el subtema y las etiquetas. El boton `Hacer preguntas de este concepto` inicia un test con esas preguntas relacionadas.
+
+## Repaso rapido y 10 minutos antes
+
+En `Estudiar rapido` puedes usar:
+
+- `Repasar todo`: tarjetas una a una con respuesta oculta.
+- `Repasar solo lo que no me se`: usa las tarjetas dudosas, marcadas para repasar o sin marcar.
+- `10 minutos antes del examen`: muestra solo tarjetas de prioridad alta agrupadas por tema, con formula, mini idea y error tipico.
+
 ## Funciones incluidas
 
 - Simulacro de examen final.
@@ -129,6 +189,9 @@ Cada formula incluye tema, nombre, formula, variables, uso, unidad, ejemplo y ad
 - Filtro por dificultad.
 - Buscador de preguntas.
 - Buscador de formulas.
+- Modo estudiar rapido con tarjetas de teoria corta.
+- Repaso rapido con respuesta oculta.
+- Modo 10 minutos antes del examen.
 - Modo examen.
 - Modo repaso.
 - Teoria relacionada por pregunta.
