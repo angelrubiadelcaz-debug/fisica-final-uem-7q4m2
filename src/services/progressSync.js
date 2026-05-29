@@ -1,6 +1,7 @@
 import { supabase } from "../lib/supabaseClient";
 import { initialProgress, STORAGE_KEY } from "../utils/storage";
 import { initialStudyProgress, STUDY_KEY } from "../utils/studyStorage";
+import { initialTutorProgress, TUTOR_KEY } from "../utils/tutorStorage";
 
 const SYNC_META_KEY = "fisica-sync-meta-v1";
 
@@ -101,12 +102,68 @@ function mergeStudyProgress(local = initialStudyProgress, remote = initialStudyP
   return { ...initialStudyProgress, ...remote, ...local, cards };
 }
 
+function mergeDoubts(localDoubts = [], remoteDoubts = []) {
+  const byKey = new Map();
+  [...remoteDoubts, ...localDoubts].forEach((item) => {
+    if (!item) return;
+    byKey.set(item.id || `${item.date}-${item.message}`, item);
+  });
+  return [...byKey.values()]
+    .sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
+    .slice(0, 30);
+}
+
+function mergeTutorQuestions(localQuestions = [], remoteQuestions = []) {
+  const byKey = new Map();
+  [...remoteQuestions, ...localQuestions].forEach((item) => {
+    if (!item) return;
+    byKey.set(item.id || `${item.date}-${item.questionText}`, item);
+  });
+  return [...byKey.values()]
+    .sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
+    .slice(0, 40);
+}
+
+function mergeCardQuiz(localCards = {}, remoteCards = {}) {
+  const merged = { ...remoteCards };
+  Object.entries(localCards).forEach(([cardId, local]) => {
+    const remote = merged[cardId] || {};
+    const localDate = local.lastReviewed ? new Date(local.lastReviewed).getTime() : 0;
+    const remoteDate = remote.lastReviewed ? new Date(remote.lastReviewed).getTime() : 0;
+    merged[cardId] = {
+      ...remote,
+      ...local,
+      attempts: mergeNumber(local.attempts, remote.attempts),
+      dominado: mergeNumber(local.dominado, remote.dominado),
+      dudoso: mergeNumber(local.dudoso, remote.dudoso),
+      repasar: mergeNumber(local.repasar, remote.repasar),
+      lastStatus: localDate >= remoteDate ? local.lastStatus || remote.lastStatus || "" : remote.lastStatus || local.lastStatus || "",
+      lastAnswer: localDate >= remoteDate ? local.lastAnswer || remote.lastAnswer || "" : remote.lastAnswer || local.lastAnswer || "",
+      lastReviewed: localDate >= remoteDate ? local.lastReviewed || remote.lastReviewed || "" : remote.lastReviewed || local.lastReviewed || "",
+    };
+  });
+  return merged;
+}
+
+function mergeTutorProgress(local = initialTutorProgress, remote = initialTutorProgress) {
+  return {
+    ...initialTutorProgress,
+    ...remote,
+    ...local,
+    doubts: mergeDoubts(local.doubts, remote.doubts),
+    tutorQuestions: mergeTutorQuestions(local.tutorQuestions, remote.tutorQuestions),
+    topicCounts: mergeCountMap(local.topicCounts, remote.topicCounts),
+    cardQuiz: mergeCardQuiz(local.cardQuiz, remote.cardQuiz),
+  };
+}
+
 export function getLocalState() {
   const meta = readSyncMeta();
   return {
     version: 1,
     testProgress: readJson(STORAGE_KEY, initialProgress),
     studyProgress: readJson(STUDY_KEY, initialStudyProgress),
+    tutorProgress: readJson(TUTOR_KEY, initialTutorProgress),
     updatedAt: meta.updatedAt || new Date().toISOString(),
   };
 }
@@ -115,6 +172,7 @@ export function saveLocalState(state) {
   if (!canUseStorage()) return;
   writeJson(STORAGE_KEY, { ...initialProgress, ...(state?.testProgress || {}) });
   writeJson(STUDY_KEY, { ...initialStudyProgress, ...(state?.studyProgress || {}) });
+  writeJson(TUTOR_KEY, { ...initialTutorProgress, ...(state?.tutorProgress || {}) });
   writeSyncMeta({ updatedAt: state?.updatedAt || new Date().toISOString() });
   window.dispatchEvent(new CustomEvent("fisica-progress-reloaded"));
 }
@@ -158,6 +216,7 @@ export function mergeStates(localState = {}, remoteState = {}) {
     version: 1,
     testProgress: mergeTestProgress(localState.testProgress, remoteState.testProgress),
     studyProgress: mergeStudyProgress(localState.studyProgress, remoteState.studyProgress),
+    tutorProgress: mergeTutorProgress(localState.tutorProgress, remoteState.tutorProgress),
     updatedAt: new Date(Math.max(localUpdated, remoteUpdated, Date.now())).toISOString(),
   };
 }

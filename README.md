@@ -227,6 +227,9 @@ Se guarda solo progreso academico:
 - historial reciente de intentos,
 - tarjetas dominadas, dudosas o para repasar,
 - fecha y numero de repasos de tarjetas.
+- dudas preguntadas al tutor,
+- resultados del modo `Preguntame`,
+- temas mas consultados en `Mis dudas`.
 
 No se guardan respuestas sensibles ni documentos del temario.
 
@@ -281,6 +284,49 @@ En `Estudiar rapido` puedes usar:
 - `Repasar todo`: tarjetas una a una con respuesta oculta.
 - `Repasar solo lo que no me se`: usa las tarjetas dudosas, marcadas para repasar o sin marcar.
 - `10 minutos antes del examen`: muestra solo tarjetas de prioridad alta agrupadas por tema, con formula, mini idea y error tipico.
+- `Preguntame`: preguntas de recuerdo activo generadas desde las tarjetas; escribes una respuesta opcional, revelas la solucion y marcas si lo sabias.
+
+## Tutor IA
+
+La web incluye un boton flotante `Tutor IA`.
+
+Funciona sin API externa usando el material local:
+
+- `src/data/studyCards.js`
+- `src/data/formulas.js`
+- `src/data/questions.js`
+- `src/data/extraQuestions.js`
+- `src/data/theoryQuestions.js`
+
+El tutor local busca tarjetas, formulas y preguntas relacionadas con tu duda. Responde corto, orientado a examen tipo test, con formula si procede, error tipico y una pregunta rapida.
+
+Tambien hay soporte opcional para IA real mediante Supabase Edge Function:
+
+```bash
+supabase functions deploy ai-tutor
+supabase secrets set OPENAI_API_KEY=tu_clave
+```
+
+No pongas `OPENAI_API_KEY` en React ni en GitHub. Si la funcion no esta desplegada o falla, la app vuelve automaticamente al tutor local.
+
+Consulta `AI_TUTOR_SETUP.md` para la guia completa.
+
+## Preguntas teoricas
+
+El banco global combina:
+
+- preguntas base de `src/data/questions.js`,
+- preguntas extra de `src/data/extraQuestions.js`,
+- preguntas teoricas generadas desde tarjetas en `src/data/theoryQuestions.js`.
+
+El archivo `src/data/allQuestions.js` une todo el banco. La interfaz permite filtrar por tipo:
+
+- calculo,
+- teoria,
+- formula,
+- unidades,
+- interpretacion,
+- tarjetas.
 
 ## Funciones incluidas
 
@@ -297,6 +343,10 @@ En `Estudiar rapido` puedes usar:
 - Teoria relacionada por pregunta.
 - Boton para mostrar/ocultar teoria.
 - Practica de falladas con `localStorage`.
+- Tutor IA local sin API externa.
+- Soporte opcional de IA real con Supabase Edge Function.
+- Mis dudas y recomendaciones por temas consultados.
+- Modo Preguntame para tarjetas.
 - Sincronizacion opcional con Supabase.
 - Estadisticas persistentes.
 - Reinicio de progreso.
@@ -308,6 +358,12 @@ En `Estudiar rapido` puedes usar:
 - `src/utils/mathFormat.js`: mapa y reglas de normalizacion de formulas.
 - `src/lib/supabaseClient.js`: cliente publico de Supabase.
 - `src/services/progressSync.js`: carga, mezcla y sincroniza progreso local/remoto.
+- `src/services/aiTutorService.js`: tutor local/remoto con fallback automatico.
+- `src/utils/localTutorEngine.js`: busqueda local en tarjetas, formulas y preguntas.
+- `src/utils/tutorStorage.js`: progreso de dudas y preguntas del tutor.
 - `src/utils/progressRepository.js`: capa comun para progreso.
+- `src/data/theoryQuestions.js`: preguntas teoricas generadas desde tarjetas.
+- `src/data/allQuestions.js`: banco global combinado.
 - `supabase/schema.sql`: tabla y politicas RLS.
+- `supabase/functions/ai-tutor/index.ts`: Edge Function opcional para IA real.
 - `.env.example`: variables necesarias.

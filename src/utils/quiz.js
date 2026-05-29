@@ -5,7 +5,7 @@ export function shuffle(items) {
     .map(({ item }) => item);
 }
 
-export function getFilteredQuestions(questions, selectedTopics, difficulty, query = "") {
+export function getFilteredQuestions(questions, selectedTopics, difficulty, query = "", questionType = "all") {
   const topicList = Array.isArray(selectedTopics) ? selectedTopics : [selectedTopics];
   const allTopics = topicList.includes("all") || topicList.length === 0;
   const normalizedQuery = query.trim().toLowerCase();
@@ -13,13 +13,14 @@ export function getFilteredQuestions(questions, selectedTopics, difficulty, quer
   return questions.filter((question) => {
     const topicMatch = allTopics || topicList.includes(question.tema);
     const difficultyMatch = difficulty === "all" || question.dificultad === difficulty;
+    const typeMatch = questionType === "all" || question.tipo === questionType;
     const searchMatch =
       !normalizedQuery ||
       [question.enunciado, question.tema, question.subtema, question.explicacion, question.teoria, question.formula, question.tipo]
         .join(" ")
         .toLowerCase()
         .includes(normalizedQuery);
-    return topicMatch && difficultyMatch && searchMatch;
+    return topicMatch && difficultyMatch && typeMatch && searchMatch;
   });
 }
 
@@ -67,5 +68,19 @@ export function difficultyLabel(value) {
     facil: "Facil",
     media: "Media",
     dificil: "Dificil",
+  }[value] || value;
+}
+
+export function questionTypeLabel(value) {
+  return {
+    all: "Todos",
+    "calculo corto": "Calculo",
+    teoria: "Teoria",
+    formula: "Formula",
+    unidades: "Unidades",
+    "interpretacion fisica": "Interpretacion",
+    tarjetas: "Tarjetas",
+    "caso conceptual": "Conceptual",
+    "trampa tipica": "Trampas",
   }[value] || value;
 }

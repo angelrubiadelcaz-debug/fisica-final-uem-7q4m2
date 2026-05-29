@@ -20,11 +20,20 @@ import {
   markStudyCard,
   saveStudyProgress,
 } from "./studyStorage";
+import {
+  clearTutorProgress,
+  loadTutorProgress,
+  recordCardQuizAnswer,
+  recordTutorDoubt,
+  recordTutorQuestion,
+  saveTutorProgress,
+} from "./tutorStorage";
 
 export {
   clearProgress,
   clearRemoteProgress,
   clearStudyProgress,
+  clearTutorProgress,
   exportLocalState,
   getLocalState,
   getPendingCards,
@@ -34,6 +43,7 @@ export {
   loadProgress,
   loadRemoteState,
   loadStudyProgress,
+  loadTutorProgress,
   markStudyCard,
   mergeResultIntoProgress,
   mergeStates,
@@ -42,10 +52,15 @@ export {
   saveProgress,
   saveRemoteState,
   saveStudyProgress,
+  saveTutorProgress,
+  recordCardQuizAnswer,
+  recordTutorDoubt,
+  recordTutorQuestion,
   syncProgress,
 };
 
 export function resetLocalProgress() {
   clearProgress();
   clearStudyProgress();
+  clearTutorProgress();
 }

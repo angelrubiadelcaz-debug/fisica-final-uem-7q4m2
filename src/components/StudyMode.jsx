@@ -1,4 +1,4 @@
-import { BookOpen, Clock, Play, RotateCcw, Search, Zap } from "lucide-react";
+import { BookOpen, Clock, HelpCircle, Play, RotateCcw, Search, Zap } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { studyCards, studyTopics } from "../data/studyCards";
 import {
@@ -10,6 +10,7 @@ import {
 } from "../utils/progressRepository";
 import ExamLastMinute from "./ExamLastMinute";
 import QuickReview from "./QuickReview";
+import CardQuizMode from "./study/CardQuizMode";
 import StudyCard from "./StudyCard";
 import StudyProgress from "./StudyProgress";
 
@@ -94,6 +95,17 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
     return <ExamLastMinute cards={studyCards} onBack={() => setView("cards")} onPractice={onPracticeConcept} />;
   }
 
+  if (view === "ask") {
+    return (
+      <CardQuizMode
+        cards={studyCards}
+        topics={studyTopics}
+        onBack={() => setView("cards")}
+        onMark={mark}
+      />
+    );
+  }
+
   const pending = getPendingCards(visibleCards, progress);
 
   return (
@@ -112,6 +124,10 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
           <button type="button" onClick={() => startReview(pending)} disabled={!pending.length}>
             <RotateCcw size={18} />
             Repasar solo lo que no me se
+          </button>
+          <button type="button" onClick={() => setView("ask")}>
+            <HelpCircle size={18} />
+            Preguntame
           </button>
           <button type="button" onClick={() => setView("last-minute")}>
             <Clock size={18} />
@@ -156,6 +172,17 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
             <span>{visibleCards.length} tarjetas visibles</span>
             <Zap size={18} />
             <span>{studyCards.filter((card) => card.prioridad === "alta").length} de prioridad alta</span>
+          </div>
+
+          <div className="actions-row">
+            <button type="button" onClick={() => onPracticeConcept({ cards: visibleCards })} disabled={!visibleCards.length}>
+              <BookOpen size={18} />
+              Hacer test de este tema
+            </button>
+            <button type="button" onClick={() => onPracticeConcept({ cards: pending })} disabled={!pending.length}>
+              <RotateCcw size={18} />
+              Hacer test de lo que no me se
+            </button>
           </div>
 
           <div className="study-card-list">

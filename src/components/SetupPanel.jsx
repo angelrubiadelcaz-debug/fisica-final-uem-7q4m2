@@ -1,10 +1,12 @@
 import { BarChart3, BookOpen, Brain, ClipboardCheck, Clock, Filter, Play, RotateCcw, Search, Settings, Trash2 } from "lucide-react";
-import { difficultyLabel } from "../utils/quiz";
+import { difficultyLabel, questionTypeLabel } from "../utils/quiz";
 
 export default function SetupPanel({
   topics,
   selectedTopics,
   difficulty,
+  questionType,
+  questionTypes,
   search,
   count,
   maxCount,
@@ -13,6 +15,7 @@ export default function SetupPanel({
   failedCount,
   onTopicToggle,
   onDifficultyChange,
+  onQuestionTypeChange,
   onSearchChange,
   onCountChange,
   onModeChange,
@@ -125,6 +128,19 @@ export default function SetupPanel({
             >
               <Filter size={16} />
               {difficultyLabel(value)}
+            </button>
+          ))}
+        </div>
+
+        <div className="segmented type-segmented" aria-label="Tipo de pregunta">
+          {["all", ...questionTypes.filter((value) => ["calculo corto", "teoria", "formula", "unidades", "interpretacion fisica", "tarjetas"].includes(value))].map((value) => (
+            <button
+              key={value}
+              className={questionType === value ? "active" : ""}
+              type="button"
+              onClick={() => onQuestionTypeChange(value)}
+            >
+              {questionTypeLabel(value)}
             </button>
           ))}
         </div>

@@ -1,6 +1,8 @@
-import { BarChart3, BookOpen, Brain, ClipboardList, Home, ListChecks, Settings } from "lucide-react";
+import { BarChart3, BookOpen, Brain, ClipboardList, HelpCircle, Home, ListChecks, Settings } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import FormulaPanel from "./components/FormulaPanel";
+import AiTutorButton from "./components/ai/AiTutorButton";
+import DoubtsPanel from "./components/DoubtsPanel";
 import QuestionCard from "./components/QuestionCard";
 import ResultsPanel from "./components/ResultsPanel";
 import SettingsPanel from "./components/SettingsPanel";
@@ -8,7 +10,7 @@ import SetupPanel from "./components/SetupPanel";
 import StatsPanel from "./components/StatsPanel";
 import StudyMode from "./components/StudyMode";
 import UserMenu from "./components/UserMenu";
-import { questions, topics } from "./data/questions";
+import { questionTypes, questions, topics } from "./data/allQuestions";
 import { isSupabaseConfigured, supabase } from "./lib/supabaseClient";
 import {
   clearProgress,
@@ -31,6 +33,7 @@ export default function App() {
   const [studyView, setStudyView] = useState("cards");
   const [selectedTopics, setSelectedTopics] = useState(["all"]);
   const [difficulty, setDifficulty] = useState("all");
+  const [questionType, setQuestionType] = useState("all");
   const [search, setSearch] = useState("");
   const [count, setCount] = useState(DEFAULT_COUNT);
   const [mode, setMode] = useState("examen");
@@ -108,8 +111,8 @@ export default function App() {
   }, [session?.user?.id]);
 
   const pool = useMemo(
-    () => getFilteredQuestions(questions, selectedTopics, difficulty, search),
-    [selectedTopics, difficulty, search],
+    () => getFilteredQuestions(questions, selectedTopics, difficulty, search, questionType),
+    [selectedTopics, difficulty, search, questionType],
   );
   const failedQuestions = useMemo(
     () => questions.filter((question) => progress.failedIds.includes(question.id)),
@@ -235,7 +238,7 @@ export default function App() {
   function updateSelectedTopics(nextTopics) {
     const normalized = nextTopics.length === 0 ? ["all"] : nextTopics;
     setSelectedTopics(normalized);
-    syncCount(getFilteredQuestions(questions, normalized, difficulty, search).length);
+    syncCount(getFilteredQuestions(questions, normalized, difficulty, search, questionType).length);
   }
 
   function toggleTopic(topic) {
@@ -252,12 +255,17 @@ export default function App() {
 
   function handleDifficultyChange(value) {
     setDifficulty(value);
-    syncCount(getFilteredQuestions(questions, selectedTopics, value, search).length);
+    syncCount(getFilteredQuestions(questions, selectedTopics, value, search, questionType).length);
+  }
+
+  function handleQuestionTypeChange(value) {
+    setQuestionType(value);
+    syncCount(getFilteredQuestions(questions, selectedTopics, difficulty, search, value).length);
   }
 
   function handleSearchChange(value) {
     setSearch(value);
-    syncCount(getFilteredQuestions(questions, selectedTopics, difficulty, value).length);
+    syncCount(getFilteredQuestions(questions, selectedTopics, difficulty, value, questionType).length);
   }
 
   function beginQuiz(nextQuestions, nextMode = mode) {
@@ -284,6 +292,7 @@ export default function App() {
     const fullPool = getFilteredQuestions(questions, ["all"], "all", "");
     setSelectedTopics(["all"]);
     setDifficulty("all");
+    setQuestionType("all");
     setSearch("");
     setCount(Math.min(count, fullPool.length));
     beginQuiz(pickQuestions(fullPool, Math.min(count, fullPool.length)), "examen");
@@ -295,10 +304,27 @@ export default function App() {
   }
 
   function practiceStudyConcept(card) {
-    const related = questions.filter((question) => card.relatedQuestionIds.includes(question.id));
-    if (!related.length) return;
+    const cards = card.cards || [card];
+    const relatedIds = new Set(cards.flatMap((item) => item.relatedQuestionIds || []));
+    const sourceIds = new Set(cards.map((item) => item.id).filter(Boolean));
+    const related = questions.filter((question) => {
+      if (relatedIds.has(question.id) || sourceIds.has(question.sourceCardId)) return true;
+      return cards.some((item) => {
+        const sameTopic = item.temaBanco ? question.tema.startsWith(item.temaBanco) : question.tema.includes(item.tema);
+        const sameSubtopic = question.subtema === item.subtema || question.enunciado.toLowerCase().includes(item.titulo.toLowerCase());
+        return sameTopic && sameSubtopic;
+      });
+    });
+    if (!related.length) {
+      window.alert("No hay suficientes preguntas de este concepto todavia.");
+      return;
+    }
     setTheoryMode("con-teoria");
-    beginQuiz(pickQuestions(related, Math.min(12, related.length)), "repaso");
+    beginQuiz(pickQuestions(related, Math.min(20, related.length)), "repaso");
+  }
+
+  function openStudyFromTutor() {
+    goStudy("cards");
   }
 
   function finishQuiz() {
@@ -354,6 +380,10 @@ export default function App() {
               <BarChart3 size={18} />
               Estadisticas
             </button>
+            <button className={section === "doubts" ? "active" : ""} type="button" onClick={() => setSection("doubts")}>
+              <HelpCircle size={18} />
+              Mis dudas
+            </button>
             <button className={section === "settings" ? "active" : ""} type="button" onClick={() => setSection("settings")}>
               <Settings size={18} />
               Ajustes
@@ -375,6 +405,8 @@ export default function App() {
         <StudyMode initialView={studyView} onPracticeConcept={practiceStudyConcept} />
       ) : section === "stats" ? (
         <StatsPanel progress={progress} onReset={resetProgress} onPracticeFailed={practiceFailed} failedCount={failedQuestions.length} />
+      ) : section === "doubts" ? (
+        <DoubtsPanel onGoStudy={() => goStudy("cards")} onPracticeCards={(cards) => practiceStudyConcept({ cards })} />
       ) : section === "settings" ? (
         <SettingsPanel
           session={session}
@@ -433,6 +465,8 @@ export default function App() {
             topics={topics}
             selectedTopics={selectedTopics}
             difficulty={difficulty}
+            questionType={questionType}
+            questionTypes={questionTypes}
             search={search}
             count={Math.min(count, Math.max(1, maxCount))}
             maxCount={maxCount}
@@ -441,6 +475,7 @@ export default function App() {
             failedCount={failedQuestions.length}
             onTopicToggle={toggleTopic}
             onDifficultyChange={handleDifficultyChange}
+            onQuestionTypeChange={handleQuestionTypeChange}
             onSearchChange={handleSearchChange}
             onCountChange={setCount}
             onModeChange={setMode}
@@ -471,6 +506,7 @@ export default function App() {
           </section>
         </>
       )}
+      <AiTutorButton onPracticeCards={(cards) => practiceStudyConcept({ cards })} onOpenStudy={openStudyFromTutor} />
     </main>
   );
 }
