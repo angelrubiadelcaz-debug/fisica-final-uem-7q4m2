@@ -89,6 +89,12 @@ button.primary:hover:not(:disabled) {
   margin-bottom: 24px;
 }
 
+.header-controls {
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+
 .app-header h1,
 .setup-panel h2,
 .summary-panel h2,
@@ -194,7 +200,10 @@ button.primary:hover:not(:disabled) {
 .active-card,
 .quick-result,
 .last-minute-block,
-.study-empty {
+.study-empty,
+.settings-hero,
+.settings-card,
+.user-menu {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
@@ -534,6 +543,7 @@ button.primary:hover:not(:disabled) {
   margin: 0.2rem 0;
   overflow-x: auto;
   overflow-y: hidden;
+  padding-bottom: 2px;
 }
 
 .math-card-formula .katex-display + .katex-display {
@@ -542,6 +552,16 @@ button.primary:hover:not(:disabled) {
 
 .formula-highlight .math-card-formula {
   background: #ffffff;
+}
+
+.katex-display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.katex-html {
+  max-width: 100%;
 }
 
 code {
@@ -654,6 +674,147 @@ code {
 .stats-shell {
   display: grid;
   gap: 16px;
+}
+
+.user-menu {
+  width: min(100%, 420px);
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  background: #ffffff;
+}
+
+.user-line,
+.sync-line,
+.user-actions,
+.auth-actions,
+.settings-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.user-line {
+  justify-content: space-between;
+  color: var(--primary-dark);
+  font-weight: 900;
+}
+
+.sync-line {
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.sync-line small {
+  color: #475569;
+  font-weight: 700;
+}
+
+.user-actions {
+  justify-content: flex-end;
+}
+
+.user-actions button {
+  min-height: 34px;
+  padding: 0 10px;
+  font-size: 0.86rem;
+}
+
+.status-synced {
+  border-color: #a9d8bb;
+}
+
+.status-pending {
+  border-color: #f3cc7a;
+}
+
+.status-error {
+  border-color: #f0a49d;
+}
+
+.settings-shell {
+  display: grid;
+  gap: 16px;
+}
+
+.settings-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+  align-items: start;
+  gap: 18px;
+  padding: 22px;
+}
+
+.settings-hero h2,
+.settings-card h3,
+.auth-box h3 {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+.settings-hero p:last-child,
+.settings-card p,
+.sync-note {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.settings-card {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 20px;
+}
+
+.auth-box {
+  display: grid;
+  gap: 12px;
+}
+
+.muted-box {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #f8fafc;
+}
+
+.auth-message {
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #eef5ff;
+  color: var(--primary-dark);
+  font-weight: 800;
+}
+
+.danger-card {
+  border-color: #f0c1bc;
+}
+
+.file-button {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+  background: #ffffff;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.file-button input {
+  display: none;
 }
 
 .stats-actions {
@@ -1200,6 +1361,11 @@ code {
     flex-direction: column;
   }
 
+  .header-controls {
+    width: 100%;
+    justify-items: stretch;
+  }
+
   .setup-grid,
   .control-grid,
   .question-layout,
@@ -1210,7 +1376,9 @@ code {
   .study-layout,
   .study-toolbar,
   .study-detail-grid,
-  .last-minute-grid {
+  .last-minute-grid,
+  .settings-hero,
+  .settings-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1244,7 +1412,9 @@ code {
   .study-hero,
   .study-hero-actions,
   .study-actions,
-  .quick-actions {
+  .quick-actions,
+  .settings-actions,
+  .user-actions {
     display: grid;
     grid-template-columns: 1fr;
   }

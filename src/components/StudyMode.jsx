@@ -7,7 +7,7 @@ import {
   loadStudyProgress,
   markStudyCard,
   saveStudyProgress,
-} from "../utils/studyStorage";
+} from "../utils/progressRepository";
 import ExamLastMinute from "./ExamLastMinute";
 import QuickReview from "./QuickReview";
 import StudyCard from "./StudyCard";
@@ -35,6 +35,15 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
   useEffect(() => {
     saveStudyProgress(progress);
   }, [progress]);
+
+  useEffect(() => {
+    function reloadProgress() {
+      setProgress(loadStudyProgress());
+    }
+
+    window.addEventListener("fisica-progress-reloaded", reloadProgress);
+    return () => window.removeEventListener("fisica-progress-reloaded", reloadProgress);
+  }, []);
 
   const visibleCards = useMemo(() => {
     const query = search.trim().toLowerCase();

@@ -1,4 +1,4 @@
-const STUDY_KEY = "fisica-study-progress-v1";
+export const STUDY_KEY = "fisica-study-progress-v1";
 
 export const initialStudyProgress = {
   cards: {},
@@ -6,6 +6,11 @@ export const initialStudyProgress = {
 
 function canUseStorage() {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+}
+
+function notifyProgressChanged() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent("fisica-progress-changed"));
 }
 
 export function loadStudyProgress() {
@@ -21,11 +26,13 @@ export function loadStudyProgress() {
 export function saveStudyProgress(progress) {
   if (!canUseStorage()) return;
   window.localStorage.setItem(STUDY_KEY, JSON.stringify(progress));
+  notifyProgressChanged();
 }
 
 export function clearStudyProgress() {
   if (!canUseStorage()) return;
   window.localStorage.removeItem(STUDY_KEY);
+  notifyProgressChanged();
 }
 
 export function markStudyCard(progress, cardId, status) {

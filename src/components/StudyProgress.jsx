@@ -1,5 +1,5 @@
 import { Trash2 } from "lucide-react";
-import { getStudySummary } from "../utils/studyStorage";
+import { getStudySummary } from "../utils/progressRepository";
 
 export default function StudyProgress({ cards, progress, onReset }) {
   const summary = getStudySummary(cards, progress);

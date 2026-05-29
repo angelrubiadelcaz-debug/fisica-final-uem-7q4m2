@@ -1,6 +1,6 @@
-const STORAGE_KEY = "fisica-test-progress-v2";
+export const STORAGE_KEY = "fisica-test-progress-v2";
 
-const initialProgress = {
+export const initialProgress = {
   attempts: 0,
   answered: 0,
   correct: 0,
@@ -13,6 +13,11 @@ const initialProgress = {
 
 function canUseStorage() {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+}
+
+function notifyProgressChanged() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent("fisica-progress-changed"));
 }
 
 export function loadProgress() {
@@ -28,11 +33,13 @@ export function loadProgress() {
 export function saveProgress(progress) {
   if (!canUseStorage()) return;
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  notifyProgressChanged();
 }
 
 export function clearProgress() {
   if (!canUseStorage()) return;
   window.localStorage.removeItem(STORAGE_KEY);
+  notifyProgressChanged();
 }
 
 export function mergeResultIntoProgress(currentProgress, result) {

@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, Brain, ClipboardCheck, Clock, Filter, Play, RotateCcw, Search, Trash2 } from "lucide-react";
+import { BarChart3, BookOpen, Brain, ClipboardCheck, Clock, Filter, Play, RotateCcw, Search, Settings, Trash2 } from "lucide-react";
 import { difficultyLabel } from "../utils/quiz";
 
 export default function SetupPanel({
@@ -24,6 +24,7 @@ export default function SetupPanel({
   onGoLastMinute,
   onGoFormulas,
   onGoStats,
+  onGoSettings,
 }) {
   const countOptions = [10, 20, 30, 40, 60, 100, maxCount]
     .filter((value, index, list) => value > 0 && value <= maxCount && list.indexOf(value) === index);
@@ -61,6 +62,11 @@ export default function SetupPanel({
           <BarChart3 size={22} />
           <strong>Estadisticas</strong>
           <span>Aciertos, fallos y temas que conviene reforzar.</span>
+        </button>
+        <button className="quick-start-card" type="button" onClick={onGoSettings}>
+          <Settings size={22} />
+          <strong>Ajustes</strong>
+          <span>Login, sincronizacion, exportar o borrar progreso.</span>
         </button>
       </div>
 

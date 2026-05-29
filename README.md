@@ -30,7 +30,13 @@ La carpeta generada es `dist/`.
 
 ## Publicacion en GitHub Pages
 
-Este repositorio esta publicado con la rama `gh-pages`, que contiene la carpeta `dist` ya compilada. La web queda disponible en una URL del tipo:
+El proyecto incluye un workflow en:
+
+```text
+.github/workflows/deploy.yml
+```
+
+Cada push a `main` instala dependencias, compila `dist` y publica con GitHub Pages Actions. La web queda disponible en una URL del tipo:
 
 ```text
 https://<usuario>.github.io/<NOMBRE_REPO>/
@@ -56,10 +62,10 @@ En GitHub:
 2. Entra en `Settings`.
 3. Entra en `Pages`.
 4. En `Build and deployment`, selecciona:
-   - `Source`: `Deploy from a branch`
-   - `Branch`: `gh-pages`
-   - `Folder`: `/ (root)`
+   - `Source`: `GitHub Actions`
 5. Guarda los cambios y espera a que GitHub termine de publicar.
+
+Si prefieres publicar manualmente con la rama `gh-pages`, tambien funciona, pero el workflow es la opcion recomendada porque permite inyectar las variables de Supabase.
 
 ## Si cambia el nombre del repositorio
 
@@ -87,11 +93,11 @@ s(
   "T4",
   "Ondas",
   "media",
-  "Si aumenta la frecuencia y la velocidad se mantiene constante, la longitud de onda:",
+  String.raw`Si aumenta \(f\) y \(v\) se mantiene constante, la longitud de onda:`,
   ["Disminuye", "Aumenta", "No cambia", "Se hace cero"],
   0,
-  "Como v = lambda f, si v permanece constante y f aumenta, lambda disminuye.",
-  "v = lambda f",
+  String.raw`Como \(v = \lambda f\), si \(v\) permanece constante y \(f\) aumenta, \(\lambda\) disminuye.`,
+  String.raw`\[v = \lambda f\]`,
   "interpretacion fisica",
 )
 ```
@@ -134,7 +140,7 @@ Ejemplo de pregunta con formula:
 enunciado: String.raw`Una onda cumple \(v = \lambda f\). Si aumenta \(f\) y \(v\) permanece constante, ¿que ocurre con \(\lambda\)?`
 ```
 
-Si escribes formulas simples como `v = v0 + a t` o `Q = c m Delta T`, el componente `MathText` intenta normalizarlas automaticamente. Aun asi, para preguntas nuevas es mejor escribir LaTeX directamente con `String.raw`.
+Si escribes formulas simples como `v = v0 + a t`, `Q = c m Delta T` o `E = \SIGMA/(2 \VARVAREPSILON_0)`, el componente `MathText` intenta normalizarlas automaticamente. Aun asi, para preguntas nuevas es mejor escribir LaTeX directamente con `String.raw`.
 
 ## Anadir formulas
 
@@ -159,13 +165,71 @@ La pestaña `Estudiar rapido` sirve para repasar teoria en tarjetas pequenas:
 - mini ejemplo,
 - pregunta rapida de recuerdo activo.
 
-El progreso se guarda en `localStorage` con estados:
+El progreso se guarda en `localStorage` y, si hay sesion iniciada, tambien en Supabase. Las tarjetas usan estos estados:
 
 - `dominado`,
 - `dudoso`,
 - `repasar`.
 
 Tambien guarda fecha del ultimo repaso y numero de veces repasada cada tarjeta.
+
+## Sincronizar progreso con Supabase
+
+La web funciona sin cuenta. En ese caso el progreso se queda en el navegador del dispositivo.
+
+Para sincronizar entre PC y movil:
+
+1. Crea un proyecto gratuito en Supabase.
+2. Ejecuta el SQL de `supabase/schema.sql` en el SQL Editor de Supabase.
+3. Copia la `Project URL` y la `anon public/publishable key`.
+4. Crea un archivo `.env.local`:
+
+```bash
+VITE_SUPABASE_URL=https://TU-PROYECTO.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=TU_CLAVE_PUBLICA
+```
+
+5. Ejecuta `npm run dev` y entra en `Ajustes`.
+6. Crea cuenta o inicia sesion con email y contrasena.
+
+Para GitHub Pages, crea estos secrets en GitHub:
+
+```text
+VITE_SUPABASE_URL
+VITE_SUPABASE_PUBLISHABLE_KEY
+```
+
+Ruta: `Settings` -> `Secrets and variables` -> `Actions` -> `New repository secret`.
+
+El workflow de Pages lee esos secrets durante `npm run build`.
+
+Nunca uses la `service_role key` en el frontend.
+
+## Que progreso se guarda
+
+Se guarda solo progreso academico:
+
+- preguntas falladas,
+- estadisticas de tests,
+- errores por tema y dificultad,
+- historial reciente de intentos,
+- tarjetas dominadas, dudosas o para repasar,
+- fecha y numero de repasos de tarjetas.
+
+No se guardan respuestas sensibles ni documentos del temario.
+
+## Ajustes
+
+La pestaña `Ajustes` permite:
+
+- iniciar sesion,
+- cerrar sesion,
+- sincronizar ahora,
+- exportar progreso a JSON,
+- importar progreso desde JSON,
+- borrar progreso local,
+- borrar progreso remoto,
+- borrar todo el progreso.
 
 ## Anadir tarjetas de estudio
 
@@ -221,5 +285,17 @@ En `Estudiar rapido` puedes usar:
 - Teoria relacionada por pregunta.
 - Boton para mostrar/ocultar teoria.
 - Practica de falladas con `localStorage`.
+- Sincronizacion opcional con Supabase.
 - Estadisticas persistentes.
 - Reinicio de progreso.
+
+## Archivos importantes
+
+- `src/components/MathText.jsx`: render de texto con LaTeX.
+- `src/utils/normalizeLatex.js`: utilidad publica para normalizar formulas.
+- `src/utils/mathFormat.js`: mapa y reglas de normalizacion de formulas.
+- `src/lib/supabaseClient.js`: cliente publico de Supabase.
+- `src/services/progressSync.js`: carga, mezcla y sincroniza progreso local/remoto.
+- `src/utils/progressRepository.js`: capa comun para progreso.
+- `supabase/schema.sql`: tabla y politicas RLS.
+- `.env.example`: variables necesarias.

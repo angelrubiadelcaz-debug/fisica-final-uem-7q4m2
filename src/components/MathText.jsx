@@ -1,5 +1,5 @@
 import Latex from "react-latex-next";
-import { normalizeMathText } from "../utils/mathFormat";
+import { normalizeMathText } from "../utils/normalizeLatex";
 
 const delimiters = [
   { left: "$$", right: "$$", display: true },
@@ -14,7 +14,23 @@ export default function MathText({ children, as: Tag = "span", block = false, cl
 
   return (
     <Tag className={classes}>
-      <Latex delimiters={delimiters}>{text}</Latex>
+      <Latex
+        delimiters={delimiters}
+        macros={{
+          "\\SIGMA": "\\sigma",
+          "\\VARVAREPSILON": "\\varepsilon",
+          "\\VAREPSILON": "\\varepsilon",
+          "\\LAMBDA": "\\lambda",
+          "\\THETA": "\\theta",
+          "\\PHI": "\\Phi",
+          "\\OMEGA": "\\omega",
+          "\\PI": "\\pi",
+          "\\sen": "\\sin",
+          "\\tg": "\\tan",
+        }}
+      >
+        {text}
+      </Latex>
     </Tag>
   );
 }

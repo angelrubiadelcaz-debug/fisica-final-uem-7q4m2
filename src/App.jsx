@@ -1,14 +1,28 @@
-import { BarChart3, BookOpen, Brain, ClipboardList, Home, ListChecks } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { BarChart3, BookOpen, Brain, ClipboardList, Home, ListChecks, Settings } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import FormulaPanel from "./components/FormulaPanel";
 import QuestionCard from "./components/QuestionCard";
 import ResultsPanel from "./components/ResultsPanel";
+import SettingsPanel from "./components/SettingsPanel";
 import SetupPanel from "./components/SetupPanel";
 import StatsPanel from "./components/StatsPanel";
 import StudyMode from "./components/StudyMode";
+import UserMenu from "./components/UserMenu";
 import { questions, topics } from "./data/questions";
+import { isSupabaseConfigured, supabase } from "./lib/supabaseClient";
+import {
+  clearProgress,
+  clearRemoteProgress,
+  exportLocalState,
+  importLocalState,
+  loadProgress,
+  mergeResultIntoProgress,
+  pushLocalProgress,
+  resetLocalProgress,
+  saveProgress,
+  syncProgress,
+} from "./utils/progressRepository";
 import { getFilteredQuestions, gradeQuiz, pickQuestions } from "./utils/quiz";
-import { clearProgress, loadProgress, mergeResultIntoProgress, saveProgress } from "./utils/storage";
 
 const DEFAULT_COUNT = 20;
 
@@ -26,10 +40,72 @@ export default function App() {
   const [current, setCurrent] = useState(0);
   const [result, setResult] = useState(null);
   const [progress, setProgress] = useState(() => loadProgress());
+  const [session, setSession] = useState(null);
+  const [syncStatus, setSyncStatus] = useState(isSupabaseConfigured ? "local" : "local");
+  const [syncMessage, setSyncMessage] = useState(isSupabaseConfigured ? "Para sincronizar, inicia sesion." : "Supabase no configurado.");
+  const [authMessage, setAuthMessage] = useState("");
+  const syncTimerRef = useRef(null);
+  const suppressNextSyncRef = useRef(false);
+  const suppressSaveEffectRef = useRef(false);
 
   useEffect(() => {
+    if (suppressSaveEffectRef.current) {
+      suppressSaveEffectRef.current = false;
+      return;
+    }
     saveProgress(progress);
   }, [progress]);
+
+  useEffect(() => {
+    if (!supabase) return undefined;
+    let mounted = true;
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (mounted) setSession(data.session);
+    });
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+      if (!nextSession) {
+        setSyncStatus("local");
+        setSyncMessage("Guardado localmente.");
+      }
+    });
+
+    return () => {
+      mounted = false;
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!session?.user) return;
+    handleSyncNow(session);
+  }, [session?.user?.id]);
+
+  useEffect(() => {
+    function handleLocalChange() {
+      if (suppressNextSyncRef.current) return;
+      if (!session?.user) {
+        setSyncStatus("local");
+        setSyncMessage(isSupabaseConfigured ? "Guardado localmente. Inicia sesion para sincronizar." : "Supabase no configurado.");
+        return;
+      }
+
+      setSyncStatus("pending");
+      setSyncMessage("Cambios locales pendientes.");
+      window.clearTimeout(syncTimerRef.current);
+      syncTimerRef.current = window.setTimeout(() => {
+        pushCurrentLocalProgress(session);
+      }, 900);
+    }
+
+    window.addEventListener("fisica-progress-changed", handleLocalChange);
+    return () => {
+      window.removeEventListener("fisica-progress-changed", handleLocalChange);
+      window.clearTimeout(syncTimerRef.current);
+    };
+  }, [session?.user?.id]);
 
   const pool = useMemo(
     () => getFilteredQuestions(questions, selectedTopics, difficulty, search),
@@ -41,6 +117,116 @@ export default function App() {
   );
   const maxCount = pool.length;
   const testActive = quizQuestions.length > 0 && !result;
+
+  function reloadLocalProgress() {
+    suppressSaveEffectRef.current = true;
+    setProgress(loadProgress());
+    window.dispatchEvent(new CustomEvent("fisica-progress-reloaded"));
+  }
+
+  async function handleSyncNow(nextSession = session) {
+    if (!nextSession?.user) {
+      setSyncStatus("local");
+      setSyncMessage(isSupabaseConfigured ? "Inicia sesion para sincronizar." : "Supabase no configurado.");
+      return;
+    }
+
+    setSyncStatus("pending");
+    setSyncMessage("Mezclando progreso local y remoto...");
+    try {
+      await syncProgress(nextSession.user.id);
+      reloadLocalProgress();
+      setSyncStatus("synced");
+      setSyncMessage("Progreso sincronizado.");
+    } catch (error) {
+      setSyncStatus("error");
+      setSyncMessage(error.message || "No se pudo sincronizar.");
+    }
+  }
+
+  async function pushCurrentLocalProgress(nextSession = session) {
+    if (!nextSession?.user) return;
+    try {
+      await pushLocalProgress(nextSession.user.id);
+      reloadLocalProgress();
+      setSyncStatus("synced");
+      setSyncMessage("Guardado en Supabase.");
+    } catch (error) {
+      setSyncStatus("error");
+      setSyncMessage(error.message || "No se pudo guardar en Supabase.");
+    }
+  }
+
+  function exportProgressJson() {
+    const blob = new Blob([exportLocalState()], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `progreso-fisica-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function importProgressJson(jsonText) {
+    try {
+      importLocalState(jsonText);
+      reloadLocalProgress();
+      setSyncStatus(session?.user ? "pending" : "local");
+      setSyncMessage("Progreso importado.");
+      if (session?.user) await pushCurrentLocalProgress(session);
+    } catch {
+      setSyncStatus("error");
+      setSyncMessage("El archivo JSON no parece valido.");
+    }
+  }
+
+  function suppressSyncDuring(callback) {
+    suppressNextSyncRef.current = true;
+    callback();
+    window.setTimeout(() => {
+      suppressNextSyncRef.current = false;
+    }, 0);
+  }
+
+  function clearLocalOnly() {
+    if (!window.confirm("Esto borra el progreso de este dispositivo. El remoto no se toca. Continuar?")) return;
+    suppressSyncDuring(resetLocalProgress);
+    reloadLocalProgress();
+    setSyncStatus("local");
+    setSyncMessage("Progreso local borrado.");
+  }
+
+  async function clearRemoteOnly() {
+    if (!session?.user) return;
+    if (!window.confirm("Esto borra el progreso guardado en Supabase. El local no se toca. Continuar?")) return;
+    setSyncStatus("pending");
+    setSyncMessage("Borrando progreso remoto...");
+    try {
+      await clearRemoteProgress(session.user.id);
+      setSyncStatus("synced");
+      setSyncMessage("Progreso remoto borrado.");
+    } catch (error) {
+      setSyncStatus("error");
+      setSyncMessage(error.message || "No se pudo borrar el progreso remoto.");
+    }
+  }
+
+  async function clearAllProgress() {
+    if (!window.confirm("Esto borra todo el progreso local y remoto disponible. Continuar?")) return;
+    suppressSyncDuring(resetLocalProgress);
+    if (session?.user) {
+      try {
+        await clearRemoteProgress(session.user.id);
+      } catch (error) {
+        setSyncStatus("error");
+        setSyncMessage(error.message || "No se pudo borrar el progreso remoto.");
+        return;
+      }
+    }
+    reloadLocalProgress();
+    setSyncStatus("local");
+    setSyncMessage("Todo el progreso se ha borrado.");
+  }
 
   function syncCount(nextMax) {
     setCount((currentCount) => Math.min(Math.max(1, currentCount), Math.max(1, nextMax)));
@@ -150,30 +336,37 @@ export default function App() {
           <p className="eyebrow">Fundamentos Fisicos</p>
           <h1>Test Final de Fisica</h1>
         </div>
-        <nav className="top-tabs" aria-label="Secciones">
-          <button className={section === "test" ? "active" : ""} type="button" onClick={() => setSection("test")}>
-            <ClipboardList size={18} />
-            Test
-          </button>
-          <button className={section === "formulas" ? "active" : ""} type="button" onClick={() => setSection("formulas")}>
-            <BookOpen size={18} />
-            Formulario
-          </button>
-          <button className={section === "study" ? "active" : ""} type="button" onClick={() => goStudy("cards")}>
-            <Brain size={18} />
-            Estudiar rapido
-          </button>
-          <button className={section === "stats" ? "active" : ""} type="button" onClick={() => setSection("stats")}>
-            <BarChart3 size={18} />
-            Estadisticas
-          </button>
-          {(testActive || result) && (
-            <button type="button" onClick={resetToSetup}>
-              <Home size={18} />
-              Inicio
+        <div className="header-controls">
+          <nav className="top-tabs" aria-label="Secciones">
+            <button className={section === "test" ? "active" : ""} type="button" onClick={() => setSection("test")}>
+              <ClipboardList size={18} />
+              Test
             </button>
-          )}
-        </nav>
+            <button className={section === "formulas" ? "active" : ""} type="button" onClick={() => setSection("formulas")}>
+              <BookOpen size={18} />
+              Formulario
+            </button>
+            <button className={section === "study" ? "active" : ""} type="button" onClick={() => goStudy("cards")}>
+              <Brain size={18} />
+              Estudiar rapido
+            </button>
+            <button className={section === "stats" ? "active" : ""} type="button" onClick={() => setSection("stats")}>
+              <BarChart3 size={18} />
+              Estadisticas
+            </button>
+            <button className={section === "settings" ? "active" : ""} type="button" onClick={() => setSection("settings")}>
+              <Settings size={18} />
+              Ajustes
+            </button>
+            {(testActive || result) && (
+              <button type="button" onClick={resetToSetup}>
+                <Home size={18} />
+                Inicio
+              </button>
+            )}
+          </nav>
+          <UserMenu session={session} syncStatus={syncStatus} syncMessage={syncMessage} onSync={handleSyncNow} />
+        </div>
       </header>
 
       {section === "formulas" ? (
@@ -182,6 +375,20 @@ export default function App() {
         <StudyMode initialView={studyView} onPracticeConcept={practiceStudyConcept} />
       ) : section === "stats" ? (
         <StatsPanel progress={progress} onReset={resetProgress} onPracticeFailed={practiceFailed} failedCount={failedQuestions.length} />
+      ) : section === "settings" ? (
+        <SettingsPanel
+          session={session}
+          syncStatus={syncStatus}
+          syncMessage={syncMessage}
+          authMessage={authMessage}
+          onAuthMessage={setAuthMessage}
+          onSync={handleSyncNow}
+          onExport={exportProgressJson}
+          onImport={importProgressJson}
+          onClearLocal={clearLocalOnly}
+          onClearRemote={clearRemoteOnly}
+          onClearAll={clearAllProgress}
+        />
       ) : result ? (
         <ResultsPanel
           result={result}
@@ -245,6 +452,7 @@ export default function App() {
             onGoLastMinute={() => goStudy("last-minute")}
             onGoFormulas={() => setSection("formulas")}
             onGoStats={() => setSection("stats")}
+            onGoSettings={() => setSection("settings")}
           />
           <section className="coverage-strip">
             <div>

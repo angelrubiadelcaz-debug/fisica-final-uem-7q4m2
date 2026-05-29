@@ -27,6 +27,11 @@ const EXACT_EXPRESSIONS = new Map([
   ["integral E.dA = Q_enc/epsilon0", String.raw`\oint \vec{E}\cdot d\vec{A} = \frac{Q_{\mathrm{enc}}}{\varepsilon_0}`],
   ["integral E.dA = Q_enc / epsilon0", String.raw`\oint \vec{E}\cdot d\vec{A} = \frac{Q_{\mathrm{enc}}}{\varepsilon_0}`],
   ["E = sigma / (2 epsilon0)", String.raw`E = \frac{\sigma}{2\varepsilon_0}`],
+  ["E = sigma/(2 epsilon0)", String.raw`E = \frac{\sigma}{2\varepsilon_0}`],
+  ["plano infinito: E = sigma/(2 epsilon0)", String.raw`E = \frac{\sigma}{2\varepsilon_0}`],
+  ["PLANO INFINITO: E = sigma/(2 epsilon0)", String.raw`E = \frac{\sigma}{2\varepsilon_0}`],
+  [String.raw`E = \SIGMA/(2 \VARVAREPSILON_0)`, String.raw`E = \frac{\sigma}{2\varepsilon_0}`],
+  [String.raw`PLANO INFINITO: E = \SIGMA/(2 \VARVAREPSILON_0)`, String.raw`E = \frac{\sigma}{2\varepsilon_0}`],
   ["E_int = rho r / (3 epsilon0)", String.raw`E_{\mathrm{int}} = \frac{\rho r}{3\varepsilon_0}`],
   ["W_cerrado = 0", String.raw`W_{\mathrm{cerrado}} = 0`],
   ["v = dr/dt", String.raw`v = \frac{dr}{dt}`],
@@ -83,6 +88,8 @@ const EXACT_EXPRESSIONS = new Map([
   ["F_m = q v x B", String.raw`\vec{F}_m = q\vec{v}\times\vec{B}`],
   ["F = |q| v B", String.raw`F = |q|vB`],
   ["F = |q| v B sin(theta)", String.raw`F = |q|vB\sin\theta`],
+  ["F = q v B sen theta", String.raw`F = qvB\sin\theta`],
+  ["F = q v B sin theta", String.raw`F = qvB\sin\theta`],
   ["r = m v / (|q| B)", String.raw`r = \frac{mv}{|q|B}`],
   ["qE = qvB", String.raw`qE = qvB`],
   ["v = E/B", String.raw`v = \frac{E}{B}`],
@@ -91,8 +98,13 @@ const EXACT_EXPRESSIONS = new Map([
   ["integral B.dl = mu0 I_enc", String.raw`\oint \vec{B}\cdot d\vec{l} = \mu_0 I_{\mathrm{enc}}`],
   ["B = mu0 n I", String.raw`B = \mu_0 nI`],
   ["Phi_B = B A cos(theta)", String.raw`\Phi_B = BA\cos\theta`],
+  ["Phi = B A cos theta", String.raw`\Phi = BA\cos\theta`],
+  ["Phi = B A cos(theta)", String.raw`\Phi = BA\cos\theta`],
   ["epsilon = -dPhi_B/dt", String.raw`\varepsilon = -\frac{d\Phi_B}{dt}`],
+  ["epsilon = - dPhi_B/dt", String.raw`\varepsilon = -\frac{d\Phi_B}{dt}`],
   ["epsilon = -N dPhi_B/dt", String.raw`\varepsilon = -N\frac{d\Phi_B}{dt}`],
+  ["epsilon = -dPhi/dt", String.raw`\varepsilon = -\frac{d\Phi}{dt}`],
+  ["epsilon = - dPhi/dt", String.raw`\varepsilon = -\frac{d\Phi}{dt}`],
   ["epsilon_L = -L dI/dt", String.raw`\varepsilon_L = -L\frac{dI}{dt}`],
   ["U_L = (1/2) L I^2", String.raw`U_L = \frac{1}{2}LI^2`],
   ["x(t)=A cos(omega t + phi)", String.raw`x(t)=A\cos(\omega t+\varphi)`],
@@ -110,7 +122,7 @@ const EXACT_EXPRESSIONS = new Map([
   ["f_batido = |f1 - f2|", String.raw`f_{\mathrm{batido}}=|f_1-f_2|`],
   ["x_n = n lambda/2", String.raw`x_n=\frac{n\lambda}{2}`],
   ["f_n = n v/(2L)", String.raw`f_n=\frac{nv}{2L}`],
-  ["f_n = n v/(4L), n impar", String.raw`f_n=\frac{nv}{4L},\ n\ \mathrm{impar}`],
+  ["f_n = n v/(4L), n impar", String.raw`f_n=\frac{nv}{4L},\quad n\,\mathrm{impar}`],
   ["c = 1/sqrt(epsilon0 mu0)", String.raw`c=\frac{1}{\sqrt{\varepsilon_0\mu_0}}`],
   ["E = c B", String.raw`E=cB`],
   ["E = h f = h c/lambda", String.raw`E=hf=\frac{hc}{\lambda}`],
@@ -120,8 +132,8 @@ const EXACT_EXPRESSIONS = new Map([
   ["I = I0 cos^2(theta)", String.raw`I=I_0\cos^2\theta`],
   ["E_c,max = h f - W", String.raw`E_{c,\max}=hf-W`],
   ["f0 = W/h", String.raw`f_0=\frac{W}{h}`],
-  ["E_foton aprox E_g", String.raw`E_{\mathrm{fotón}}\approx E_g`],
-  ["E_foton >= E_g", String.raw`E_{\mathrm{fotón}}\ge E_g`],
+  ["E_foton aprox E_g", String.raw`E_{\mathrm{foton}}\approx E_g`],
+  ["E_foton >= E_g", String.raw`E_{\mathrm{foton}}\ge E_g`],
   ["I_C = beta I_B", String.raw`I_C=\beta I_B`],
   ["mu = I A", String.raw`\mu=IA`],
   ["tau = mu B sin(theta)", String.raw`\tau=\mu B\sin\theta`],
@@ -168,43 +180,67 @@ function isDelimited(value) {
   return DISPLAY_DELIMITER.test(value);
 }
 
+export function normalizeLatexCommands(value) {
+  return String(value)
+    .replace(/\\+SIGMA(?=[^A-Za-z]|$)/g, String.raw`\sigma`)
+    .replace(/\\+VARVAREPSILON(?=[^A-Za-z]|$)/g, String.raw`\varepsilon`)
+    .replace(/\\+VAREPSILON(?=[^A-Za-z]|$)/g, String.raw`\varepsilon`)
+    .replace(/\\+EPSILON(?=[^A-Za-z]|$)/g, String.raw`\varepsilon`)
+    .replace(/\\+LAMBDA(?=[^A-Za-z]|$)/g, String.raw`\lambda`)
+    .replace(/\\+THETA(?=[^A-Za-z]|$)/g, String.raw`\theta`)
+    .replace(/\\+PHI(?=[^A-Za-z]|$)/g, String.raw`\Phi`)
+    .replace(/\\+OMEGA(?=[^A-Za-z]|$)/g, String.raw`\omega`)
+    .replace(/\\+PI(?=[^A-Za-z]|$)/g, String.raw`\pi`)
+    .replace(/\\+SEN(?=[^A-Za-z]|$)/g, String.raw`\sin`)
+    .replace(/\\+sen(?=[^A-Za-z]|$)/g, String.raw`\sin`)
+    .replace(/\\+TG(?=[^A-Za-z]|$)/g, String.raw`\tan`)
+    .replace(/\\+tg(?=[^A-Za-z]|$)/g, String.raw`\tan`);
+}
+
 function normalizeExpression(expression) {
-  const exact = EXACT_EXPRESSIONS.get(expression.trim());
+  const cleanedExpression = normalizeLatexCommands(expression).trim();
+  const exact = EXACT_EXPRESSIONS.get(cleanedExpression);
   if (exact) return exact;
 
-  return expression
-    .trim()
+  return cleanedExpression
     .replace(/×/g, String.raw`\times`)
     .replace(/ x /g, String.raw` \times `)
     .replace(/>=/g, String.raw`\ge`)
     .replace(/<=/g, String.raw`\le`)
     .replace(/aprox/g, String.raw`\approx`)
-    .replace(/DeltaT/g, String.raw`\Delta T`)
-    .replace(/Delta/g, String.raw`\Delta`)
-    .replace(/Phi/g, String.raw`\Phi`)
-    .replace(/epsilon0/g, String.raw`\varepsilon_0`)
-    .replace(/epsilon/g, String.raw`\varepsilon`)
-    .replace(/mu0/g, String.raw`\mu_0`)
-    .replace(/\bmu\b/g, String.raw`\mu`)
-    .replace(/lambda/g, String.raw`\lambda`)
-    .replace(/omega/g, String.raw`\omega`)
-    .replace(/theta/g, String.raw`\theta`)
-    .replace(/kappa/g, String.raw`\kappa`)
-    .replace(/sigma/g, String.raw`\sigma`)
-    .replace(/\brho\b/g, String.raw`\rho`)
-    .replace(/(^|[^A-Za-z])beta\b/g, String.raw`$1\beta`)
-    .replace(/(^|[^A-Za-z])eta\b/g, String.raw`$1\eta`)
-    .replace(/\btau\b/g, String.raw`\tau`)
-    .replace(/\bpi\b/g, String.raw`\pi`)
+    .replace(/(?<!\\)\bDeltaT\b/g, String.raw`\Delta T`)
+    .replace(/(?<!\\)\bDelta\b/g, String.raw`\Delta`)
+    .replace(/(?<!\\)\bPhi\b/g, String.raw`\Phi`)
+    .replace(/(?<!\\)\bepsilon0\b/g, String.raw`\varepsilon_0`)
+    .replace(/(?<!\\)\bepsilon\b/g, String.raw`\varepsilon`)
+    .replace(/(?<!\\)\bmu0\b/g, String.raw`\mu_0`)
+    .replace(/(?<!\\)\bmu\b/g, String.raw`\mu`)
+    .replace(/(?<!\\)\blambda\b/g, String.raw`\lambda`)
+    .replace(/(?<!\\)\bomega\b/g, String.raw`\omega`)
+    .replace(/(?<!\\)\btheta\b/g, String.raw`\theta`)
+    .replace(/(?<!\\)\bkappa\b/g, String.raw`\kappa`)
+    .replace(/(?<!\\)\bsigma\b/g, String.raw`\sigma`)
+    .replace(/(?<!\\)\brho\b/g, String.raw`\rho`)
+    .replace(/(^|[^A-Za-z\\])beta\b/g, String.raw`$1\beta`)
+    .replace(/(^|[^A-Za-z\\])eta\b/g, String.raw`$1\eta`)
+    .replace(/(?<!\\)\btau\b/g, String.raw`\tau`)
+    .replace(/(?<!\\)\bpi\b/g, String.raw`\pi`)
     .replace(/sqrt\(([^)]+)\)/g, String.raw`\sqrt{$1}`)
     .replace(/log10/g, String.raw`\log_{10}`)
     .replace(/arcsin/g, String.raw`\arcsin`)
-    .replace(/sen\s*\\theta/g, String.raw`\sin\theta`)
-    .replace(/sin\(\\theta\)/g, String.raw`\sin\theta`)
-    .replace(/sin\s*\\theta/g, String.raw`\sin\theta`)
-    .replace(/cos\(\\theta\)/g, String.raw`\cos\theta`)
-    .replace(/cos\s*\\theta/g, String.raw`\cos\theta`)
+    .replace(/\btg\b/g, String.raw`\tan`)
+    .replace(/\\?sen\s*\\theta/g, String.raw`\sin\theta`)
+    .replace(/\\?sin\(\\theta\)/g, String.raw`\sin\theta`)
+    .replace(/\\?sin\s*\\theta/g, String.raw`\sin\theta`)
+    .replace(/\\?cos\(\\theta\)/g, String.raw`\cos\theta`)
+    .replace(/\\?cos\s*\\theta/g, String.raw`\cos\theta`)
+    .replace(/\bsen\b/g, String.raw`\sin`)
     .replace(/1\/2/g, String.raw`\frac{1}{2}`)
+    .replace(/\\sigma\s*\/\s*\(\s*2\s*\\varepsilon_0\s*\)/g, String.raw`\frac{\sigma}{2\varepsilon_0}`)
+    .replace(/\\Phi_B\s*=\s*B\s*A\s*\\cos\s*\\theta/g, String.raw`\Phi_B = BA\cos\theta`)
+    .replace(/\\varepsilon\s*=\s*-\s*d\\Phi_B\s*\/\s*dt/g, String.raw`\varepsilon = -\frac{d\Phi_B}{dt}`)
+    .replace(/\\varepsilon\s*=\s*-\s*d\\Phi\s*\/\s*dt/g, String.raw`\varepsilon = -\frac{d\Phi}{dt}`)
+    .replace(/\\lambda\s*f/g, String.raw`\lambda f`)
     .replace(/\((\\frac\{1\}\{2\})\)/g, "$1")
     .replace(/\b([A-Za-z])([0-9])\b/g, "$1_$2")
     .replace(/\b([A-Za-z])_0\b/g, "$1_0")
@@ -223,10 +259,26 @@ function normalizeExpression(expression) {
     .replace(/Req/g, String.raw`R_{\mathrm{eq}}`);
 }
 
+function normalizeDelimitedMath(text) {
+  return normalizeLatexCommands(text)
+    .replace(/\\\[([\s\S]*?)\\\]/g, (_, expression) => String.raw`\[${normalizeExpression(expression)}\]`)
+    .replace(/\\\(([\s\S]*?)\\\)/g, (_, expression) => String.raw`\(${normalizeExpression(expression)}\)`)
+    .replace(/\$\$([\s\S]*?)\$\$/g, (_, expression) => String.raw`\[${normalizeExpression(expression)}\]`)
+    .replace(/(^|[^\\])\$([^$\n]+)\$/g, (_, prefix, expression) => `${prefix}${String.raw`\(${normalizeExpression(expression)}\)`}`);
+}
+
+function looksLikeStandaloneFormula(text) {
+  const trimmed = text.trim();
+  if (!trimmed || trimmed.length > 90 || /[¿?]/.test(trimmed)) return false;
+  if (!/[=<>]|\\frac|\\sqrt|\\sum|\\oint|\\int/.test(trimmed)) return false;
+  return /^[A-Za-z0-9\\_\^{}\s+\-*/=().,|<>·]+$/.test(trimmed);
+}
+
 export function toDisplayLatex(value) {
   if (!value) return "";
-  const text = String(value).trim();
-  if (!text || isDelimited(text)) return text;
+  const text = normalizeLatexCommands(String(value)).trim();
+  if (!text) return "";
+  if (isDelimited(text)) return normalizeDelimitedMath(text);
   return text
     .split(";")
     .map((part) => part.trim())
@@ -237,13 +289,14 @@ export function toDisplayLatex(value) {
 
 export function toInlineLatex(value) {
   if (!value) return "";
-  const text = String(value).trim();
-  if (!text || isDelimited(text)) return text;
+  const text = normalizeLatexCommands(String(value)).trim();
+  if (!text) return "";
+  if (isDelimited(text)) return normalizeDelimitedMath(text);
   return String.raw`\(${normalizeExpression(text)}\)`;
 }
 
 function replaceInlineFormulas(text) {
-  let next = text;
+  let next = normalizeDelimitedMath(text);
   INLINE_REPLACEMENTS.forEach((plain) => {
     if (!next.includes(plain)) return;
     next = next.replace(new RegExp(escapeRegExp(plain), "g"), toInlineLatex(plain));
@@ -320,9 +373,10 @@ function replaceLooseMathTokens(segment) {
 
 export function normalizeMathText(value, { block = false } = {}) {
   if (value === null || value === undefined) return "";
-  const text = String(value);
+  const text = normalizeLatexCommands(String(value));
   if (!text.trim()) return "";
-  if (isDelimited(text)) return text;
+  if (isDelimited(text)) return normalizeDelimitedMath(text);
   if (block) return toDisplayLatex(text);
+  if (looksLikeStandaloneFormula(text)) return toInlineLatex(text);
   return replaceInlineFormulas(text);
 }
