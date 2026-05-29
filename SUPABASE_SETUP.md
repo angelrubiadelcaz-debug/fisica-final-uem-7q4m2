@@ -38,7 +38,29 @@ Esto crea la tabla `public.user_state` y activa RLS para que cada usuario solo p
 
 No copies la clave `service_role`.
 
-## 4. Probar en local
+## 4. Configurar URLs de autenticacion
+
+En Supabase:
+
+1. Entra en `Authentication`.
+2. Entra en `URL Configuration`.
+3. En `Site URL`, pon:
+
+```text
+https://angelrubiadelcaz-debug.github.io/fisica-final-uem-7q4m2/
+```
+
+4. En `Redirect URLs`, anade estas URLs:
+
+```text
+https://angelrubiadelcaz-debug.github.io/fisica-final-uem-7q4m2/
+http://localhost:5173/
+http://127.0.0.1:5173/
+```
+
+La URL de localhost sirve para probar login en local. La URL de GitHub Pages sirve para usar la web publicada.
+
+## 5. Probar en local
 
 Crea un archivo `.env.local` en la raiz del proyecto:
 
@@ -61,7 +83,7 @@ En la web:
 3. Haz un test o marca tarjetas.
 4. Pulsa `Sincronizar ahora`.
 
-## 5. Configurar GitHub Pages
+## 6. Configurar GitHub Pages
 
 En GitHub, dentro del repositorio:
 
@@ -84,7 +106,7 @@ Source: GitHub Actions
 
 Cuando hagas push a `main`, el workflow publicara la web con esas variables.
 
-## 6. Que pasa sin iniciar sesion
+## 7. Que pasa sin iniciar sesion
 
 La web sigue funcionando.
 
@@ -102,7 +124,7 @@ Con login:
 - se guarda en Supabase,
 - al entrar desde otro dispositivo con la misma cuenta se recupera el progreso.
 
-## 7. Borrar progreso
+## 8. Borrar progreso
 
 En la pestaña `Ajustes` puedes borrar:
 

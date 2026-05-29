@@ -192,6 +192,18 @@ VITE_SUPABASE_PUBLISHABLE_KEY=TU_CLAVE_PUBLICA
 5. Ejecuta `npm run dev` y entra en `Ajustes`.
 6. Crea cuenta o inicia sesion con email y contrasena.
 
+En Supabase, configura tambien `Authentication` -> `URL Configuration`:
+
+```text
+Site URL:
+https://angelrubiadelcaz-debug.github.io/fisica-final-uem-7q4m2/
+
+Redirect URLs:
+https://angelrubiadelcaz-debug.github.io/fisica-final-uem-7q4m2/
+http://localhost:5173/
+http://127.0.0.1:5173/
+```
+
 Para GitHub Pages, crea estos secrets en GitHub:
 
 ```text
