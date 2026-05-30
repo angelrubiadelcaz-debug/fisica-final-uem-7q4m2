@@ -150,7 +150,13 @@ const EXACT_EXPRESSIONS = new Map([
   ["Q = m c DeltaT", String.raw`Q=mc\Delta T`],
   ["Q = L m", String.raw`Q=Lm`],
   ["Q = m L", String.raw`Q=mL`],
-  ["eta = W / Q_caliente", String.raw`\eta=\frac{W}{Q_{\mathrm{caliente}}}`],
+  ["W = Qc - Qf", String.raw`W=Q_H-Q_C`],
+  ["eta = W / Q_caliente", String.raw`\eta=\frac{W}{Q_H}`],
+  ["eta = W / QH", String.raw`\eta=\frac{W}{Q_H}`],
+  ["eta = W/QH", String.raw`\eta=\frac{W}{Q_H}`],
+  ["H = W/QCALIENTE", String.raw`\eta=\frac{W}{Q_H}`],
+  ["eta = 1 - Q_C/Q_H", String.raw`\eta=1-\frac{Q_C}{Q_H}`],
+  ["eta = 1 - QC/QH", String.raw`\eta=1-\frac{Q_C}{Q_H}`],
   ["eta = 1 - T_fria/T_caliente", String.raw`\eta=1-\frac{T_{\mathrm{fria}}}{T_{\mathrm{caliente}}}`],
   ["COP = Q_fria / W", String.raw`\mathrm{COP}=\frac{Q_{\mathrm{fria}}}{W}`],
   ["COP_R = T_fria/(T_caliente - T_fria)", String.raw`\mathrm{COP}_R=\frac{T_{\mathrm{fria}}}{T_{\mathrm{caliente}}-T_{\mathrm{fria}}}`],
@@ -257,7 +263,11 @@ function normalizeExpression(expression) {
     .replace(/T_fria/g, String.raw`T_{\mathrm{fria}}`)
     .replace(/T_caliente/g, String.raw`T_{\mathrm{caliente}}`)
     .replace(/Q_fria/g, String.raw`Q_{\mathrm{fria}}`)
-    .replace(/Q_caliente/g, String.raw`Q_{\mathrm{caliente}}`)
+    .replace(/Q_caliente/g, String.raw`Q_H`)
+    .replace(/\bQH\b/g, String.raw`Q_H`)
+    .replace(/\bQC\b/g, String.raw`Q_C`)
+    .replace(/\bQh\b/g, String.raw`Q_H`)
+    .replace(/\bQc\b/g, String.raw`Q_C`)
     .replace(/Ceq/g, String.raw`C_{\mathrm{eq}}`)
     .replace(/Req/g, String.raw`R_{\mathrm{eq}}`);
 }

@@ -1283,12 +1283,18 @@ const rawStudyCards = [
     temaBanco: T6,
     titulo: "Rendimiento de una maquina termica",
     prioridad: "alta",
-    explicacionCorta: "Una maquina termica convierte parte del calor absorbido en trabajo.",
-    formula: "eta = W / Q_caliente",
-    variables: ["eta: rendimiento", "W: trabajo util", "Q_caliente: calor absorbido del foco caliente"],
+    explicacionCorta: "Una maquina termica convierte parte del calor del foco caliente en trabajo util y cede el resto al foco frio.",
+    formula: String.raw`\[\eta = \frac{W}{Q_H}\]
+\[\eta = 1 - \frac{Q_C}{Q_H}\]`,
+    variables: [
+      String.raw`\(\eta\): rendimiento`,
+      String.raw`\(W\): trabajo util`,
+      String.raw`\(Q_H\): calor absorbido del foco caliente`,
+      String.raw`\(Q_C\): calor cedido al foco frio`,
+    ],
     cuandoSeUsa: "Cuando comparan trabajo producido y calor recibido.",
     errorTipico: "Dividir por el calor cedido al foco frio.",
-    miniEjemplo: "Si W=200 J y Qh=1000 J, eta=20%.",
+    miniEjemplo: String.raw`Si \(W = 200\,\text{J}\) y \(Q_H = 1000\,\text{J}\), entonces \(\eta=\frac{200}{1000}=0.2=20\%\).`,
     preguntaActiva: "El rendimiento compara trabajo con calor absorbido o con calor cedido?",
     respuestaActiva: "Con calor absorbido.",
     etiquetas: ["maquina termica", "rendimiento", "calor", "trabajo"],
@@ -1687,7 +1693,7 @@ const conciseExplanations = {
   "procesos-termodinamicos": "Cada proceso termodinamico mantiene fija una magnitud o anula un intercambio.",
   "calor-sensible": "El calor sensible cambia la temperatura mientras la sustancia mantiene la fase.",
   "calor-latente": "Durante un cambio de fase ideal, el calor cambia el estado y la temperatura permanece constante.",
-  "maquina-termica-rendimiento": "Una maquina termica convierte solo una parte del calor absorbido en trabajo util.",
+  "maquina-termica-rendimiento": "Una maquina termica convierte parte del calor del foco caliente en trabajo util y cede el resto al foco frio.",
   "carnot-kelvin": "El rendimiento de Carnot fija el limite teorico entre dos focos a temperaturas en kelvin.",
   "cop-refrigerador": "El COP mide cuanto calor se extrae del foco frio por cada unidad de trabajo aportado.",
   "entropia-segundo-principio": "En un proceso real, la entropia total del universo no puede disminuir.",
@@ -1732,6 +1738,33 @@ const detailedExplanations = {
       "Pensar que aportar calor siempre aumenta la temperatura. En un cambio de fase ideal, la temperatura se mantiene constante mientras dura el cambio.",
     examSummary:
       String.raw`En un cambio de fase ideal se usa \(Q=mL\). La energia cambia el estado de la sustancia, no su temperatura.`,
+  },
+  "maquina-termica-rendimiento": {
+    explanation: [
+      "Una maquina termica toma calor de un foco caliente y transforma una parte de esa energia en trabajo util.",
+      "No todo el calor absorbido puede convertirse en trabajo. Una parte debe cederse al foco frio, de acuerdo con el segundo principio de la termodinamica.",
+    ],
+    physicalMeaning:
+      String.raw`El rendimiento \(\eta\) indica que fraccion del calor absorbido \(Q_H\) se convierte en trabajo util \(W\).`,
+    variables: [
+      String.raw`\(\eta\): rendimiento de la maquina termica`,
+      String.raw`\(W\): trabajo util producido`,
+      String.raw`\(Q_H\): calor absorbido del foco caliente`,
+      String.raw`\(Q_C\): calor cedido al foco frio`,
+    ],
+    whenToUse: [
+      "Cuando el enunciado da el trabajo producido y el calor absorbido.",
+      "Cuando se compara el calor que entra desde el foco caliente con el calor cedido al foco frio.",
+      "Cuando preguntan que porcentaje de energia se convierte en trabajo.",
+    ],
+    recognition:
+      String.raw`Busca expresiones como foco caliente, foco frio, trabajo producido o rendimiento. Si aparecen \(W\) y \(Q_H\), usa \(\eta=\frac{W}{Q_H}\).`,
+    miniExample:
+      String.raw`Si \(W = 200\,\text{J}\) y \(Q_H = 1000\,\text{J}\), entonces \(\eta=\frac{200}{1000}=0.2=20\%\).`,
+    commonMistake:
+      String.raw`Usar \(Q_C\) en el denominador. El rendimiento se compara con el calor absorbido del foco caliente, \(Q_H\).`,
+    examSummary:
+      String.raw`Para una maquina termica, \(\eta=\frac{W}{Q_H}=1-\frac{Q_C}{Q_H}\). Siempre es menor que 1 en una maquina real.`,
   },
 };
 
