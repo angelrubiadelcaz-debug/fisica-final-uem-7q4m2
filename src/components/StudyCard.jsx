@@ -12,7 +12,7 @@ const statusLabel = {
 
 export default function StudyCard({ card, progress, onMark, onPractice }) {
   const [showAnswer, setShowAnswer] = useState(false);
-  const [showDetails, setShowDetails] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
   const state = getStudyCardState(progress, card.id);
 
   return (
@@ -25,7 +25,10 @@ export default function StudyCard({ card, progress, onMark, onPractice }) {
         <span className={`study-status status-${state.status}`}>{statusLabel[state.status]}</span>
       </div>
 
-      <MathText as="p" className="study-short">{card.explicacionCorta}</MathText>
+      <div className="study-idea">
+        <span>Idea clave</span>
+        <MathText as="p" className="study-short">{card.explicacionCorta}</MathText>
+      </div>
 
       {card.formula && (
         <div className="formula-highlight">

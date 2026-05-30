@@ -1611,10 +1611,58 @@ function relatedQuestionIdsFor(card) {
     .map((question) => question.id);
 }
 
+const conciseExplanations = {
+  "mrua-velocidad-posicion": "Si la aceleracion es constante, usa las ecuaciones de MRUA.",
+  "trabajo-angulo": "El trabajo cuenta solo la fuerza que va con el desplazamiento.",
+  "movimiento-circular-centripeta": "En una curva puede haber aceleracion aunque la rapidez no cambie.",
+  "carga-electrica-signo": "La carga tiene signo: iguales se repelen y opuestas se atraen.",
+  "campo-electrico-fuerza-carga": "El campo dice que fuerza recibe una carga positiva de prueba.",
+  "simetria-plana-esferica": "La forma de la carga decide como cambia el campo con la distancia.",
+  "potencial-coulomb-1r": "El potencial de una carga puntual baja como 1/r y conserva el signo.",
+  "trabajo-electrico-equipotencial": "El trabajo electrico depende de Delta V, no del camino.",
+  "conductores-equilibrio": "Dentro de un conductor en equilibrio, E es nulo y V es constante.",
+  "efecto-punta-apantallamiento": "Las puntas concentran carga; los conductores pueden apantallar.",
+  "dielectricos-campo-capacidad": "Un dielectrico aumenta C y reduce el campo interno.",
+  "joule-potencia": "La potencia en una resistencia depende de que dato este fijo.",
+  "lorentz-magnetica": "Una carga en movimiento dentro de B puede sentir fuerza magnetica.",
+  "ciclotron-radio": "Si v es perpendicular a B, la carga gira en circunferencia.",
+  "selector-velocidades": "E y B pueden compensarse solo para una velocidad concreta.",
+  "faraday-lenz": "Cambiar el flujo magnetico induce una fem que se opone al cambio.",
+  "mas-basico": "En MAS, la aceleracion apunta hacia el equilibrio.",
+  "periodo-frecuencia-omega": "Periodo y frecuencia son inversos; omega mide ritmo angular.",
+  "periodo-muelle": "En un muelle ideal, el periodo depende de m y k.",
+  "energia-mas": "En MAS ideal, la energia total se conserva.",
+  "onda-v-lambda-f": "En una onda, v, lambda y f estan relacionadas.",
+  "onda-velocidad-medio": "La onda avanza; las particulas del medio solo vibran.",
+  "doppler-trampa-signos": "Primero decide si fuente y observador se acercan o se alejan.",
+  "maxwell-ondas-em": "Una onda electromagnetica puede viajar sin medio material.",
+  "fotones-espectro": "Mayor frecuencia significa menor lambda y mas energia por foton.",
+  "panel-solar-irradiancia": "La energia util depende de irradiancia, area, tiempo y eficiencia.",
+  "curie-histeresis": "Curie elimina ferromagnetismo; histeresis indica memoria.",
+  "reflexion-total": "Reflexion total: de mayor a menor indice y con angulo suficiente.",
+  "dispersion-difusion": "Dispersion separa colores; difusion reparte luz.",
+  "polarizacion-malus": "La polarizacion marca la direccion del campo electrico.",
+  "fotoelectrico-umbral": "El fotoelectrico depende de la frecuencia, no solo de intensidad.",
+  "transistor-interruptor": "Un transistor en corte o saturacion puede actuar como interruptor.",
+  "temperatura-kelvin": "En termodinamica, las temperaturas de formulas van en kelvin.",
+  "procesos-termodinamicos": "Cada proceso iso mantiene fija una magnitud.",
+  "conduccion-fourier": "La conduccion pasa calor por contacto.",
+  "radiacion-stefan": "La radiacion termica crece mucho al subir la temperatura absoluta.",
+  "circuito-termico": "En circuitos termicos, mas resistencia reduce la potencia.",
+  "lineas-campo-electrico": "Las lineas muestran direccion y sentido de E.",
+  "corrientes-paralelas": "Dos corrientes paralelas se atraen o repelen segun sus sentidos.",
+  "fuerza-conductor-corriente": "Un conductor con corriente dentro de B puede sufrir fuerza.",
+  "sismologia-ondas": "Las ondas sismicas se comparan por tiempos y escalas no lineales.",
+  "fuentes-luz": "Cada fuente emite luz por un mecanismo distinto.",
+  "campo-gravitatorio-analogias": "La gravedad puntual es atractiva y baja como 1/r2.",
+  "resistencias-termicas-serie": "En capas en serie, las resistencias termicas se suman.",
+};
+
 export const studyCards = rawStudyCards.map((sourceCard) => {
   const { relatedTerms, ...card } = sourceCard;
   return {
     ...card,
+    explicacionCorta: conciseExplanations[card.id] || card.explicacionCorta,
     formula: card.formula ? toDisplayLatex(card.formula) : "",
     relatedQuestionIds: relatedQuestionIdsFor(sourceCard),
   };

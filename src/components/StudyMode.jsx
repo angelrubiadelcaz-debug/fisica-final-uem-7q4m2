@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { studyCards, studyTopics } from "../data/studyCards";
 import {
   clearStudyProgress,
-  getPendingCards,
+  getStudyCardState,
   loadStudyProgress,
   markStudyCard,
   saveStudyProgress,
@@ -21,9 +21,19 @@ const priorityLabels = {
   baja: "Baja",
 };
 
+const statusFilters = [
+  { value: "all", label: "Todas" },
+  { value: "dominado", label: "Me las se" },
+  { value: "dudoso", label: "Dudosas" },
+  { value: "repasar", label: "No me las se" },
+  { value: "needs-review", label: "Dudosas + no sabidas" },
+  { value: "sin-marcar", label: "Sin marcar" },
+];
+
 export default function StudyMode({ initialView = "cards", onPracticeConcept }) {
   const [topic, setTopic] = useState("all");
   const [priority, setPriority] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [view, setView] = useState(initialView);
   const [reviewCards, setReviewCards] = useState([]);
@@ -46,7 +56,7 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
     return () => window.removeEventListener("fisica-progress-reloaded", reloadProgress);
   }, []);
 
-  const visibleCards = useMemo(() => {
+  const baseVisibleCards = useMemo(() => {
     const query = search.trim().toLowerCase();
     return studyCards.filter((card) => {
       const topicMatch = topic === "all" || card.tema === topic;
@@ -65,6 +75,40 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
       return topicMatch && priorityMatch && (!query || haystack.includes(query));
     });
   }, [topic, priority, search]);
+
+  const visibleCards = useMemo(
+    () =>
+      baseVisibleCards.filter((card) => {
+        const status = getStudyCardState(progress, card.id).status;
+        if (statusFilter === "all") return true;
+        if (statusFilter === "needs-review") return status === "dudoso" || status === "repasar";
+        return status === statusFilter;
+      }),
+    [baseVisibleCards, progress, statusFilter],
+  );
+
+  const needsReviewCards = useMemo(
+    () =>
+      baseVisibleCards.filter((card) => {
+        const status = getStudyCardState(progress, card.id).status;
+        return status === "dudoso" || status === "repasar";
+      }),
+    [baseVisibleCards, progress],
+  );
+
+  const statusCounts = useMemo(
+    () =>
+      baseVisibleCards.reduce(
+        (counts, card) => {
+          const status = getStudyCardState(progress, card.id).status;
+          counts[status] = (counts[status] || 0) + 1;
+          if (status === "dudoso" || status === "repasar") counts["needs-review"] += 1;
+          return counts;
+        },
+        { all: baseVisibleCards.length, dominado: 0, dudoso: 0, repasar: 0, "needs-review": 0, "sin-marcar": 0 },
+      ),
+    [baseVisibleCards, progress],
+  );
 
   function mark(cardId, status) {
     setProgress((current) => markStudyCard(current, cardId, status));
@@ -106,8 +150,6 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
     );
   }
 
-  const pending = getPendingCards(visibleCards, progress);
-
   return (
     <section className="study-shell">
       <div className="study-hero">
@@ -121,9 +163,9 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
             <Play size={18} />
             Repasar todo
           </button>
-          <button type="button" onClick={() => startReview(pending)} disabled={!pending.length}>
+          <button type="button" onClick={() => startReview(needsReviewCards)} disabled={!needsReviewCards.length}>
             <RotateCcw size={18} />
-            Repasar solo lo que no me se
+            Repasar dudosas/no sabidas
           </button>
           <button type="button" onClick={() => setView("ask")}>
             <HelpCircle size={18} />
@@ -167,9 +209,25 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
             </label>
           </div>
 
+          <div className="study-filter-row" aria-label="Filtro de tarjetas por estado">
+            {statusFilters.map((item) => (
+              <button
+                key={item.value}
+                className={statusFilter === item.value ? "active" : ""}
+                type="button"
+                onClick={() => setStatusFilter(item.value)}
+              >
+                {item.label}
+                <span>{statusCounts[item.value] || 0}</span>
+              </button>
+            ))}
+          </div>
+
           <div className="study-count-line">
             <BookOpen size={18} />
             <span>{visibleCards.length} tarjetas visibles</span>
+            <RotateCcw size={18} />
+            <span>{needsReviewCards.length} dudosas/no sabidas</span>
             <Zap size={18} />
             <span>{studyCards.filter((card) => card.prioridad === "alta").length} de prioridad alta</span>
           </div>
@@ -179,7 +237,11 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
               <BookOpen size={18} />
               Hacer test de este tema
             </button>
-            <button type="button" onClick={() => onPracticeConcept({ cards: pending })} disabled={!pending.length}>
+            <button type="button" onClick={() => startReview(needsReviewCards)} disabled={!needsReviewCards.length}>
+              <RotateCcw size={18} />
+              Repasar dudosas/no sabidas
+            </button>
+            <button type="button" onClick={() => onPracticeConcept({ cards: needsReviewCards })} disabled={!needsReviewCards.length}>
               <RotateCcw size={18} />
               Hacer test de lo que no me se
             </button>

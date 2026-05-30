@@ -1,6 +1,6 @@
 import { supabase } from "../lib/supabaseClient";
 import { initialProgress, STORAGE_KEY } from "../utils/storage";
-import { initialStudyProgress, STUDY_KEY } from "../utils/studyStorage";
+import { initialStudyProgress, normalizeStudyProgress, STUDY_KEY } from "../utils/studyStorage";
 import { initialTutorProgress, TUTOR_KEY } from "../utils/tutorStorage";
 
 const SYNC_META_KEY = "fisica-sync-meta-v1";
@@ -94,12 +94,14 @@ function mergeCardState(local = {}, remote = {}) {
 }
 
 function mergeStudyProgress(local = initialStudyProgress, remote = initialStudyProgress) {
+  const normalizedLocal = normalizeStudyProgress(local);
+  const normalizedRemote = normalizeStudyProgress(remote);
   const cards = {};
-  const ids = new Set([...Object.keys(remote.cards || {}), ...Object.keys(local.cards || {})]);
+  const ids = new Set([...Object.keys(normalizedRemote.cards || {}), ...Object.keys(normalizedLocal.cards || {})]);
   ids.forEach((cardId) => {
-    cards[cardId] = mergeCardState(local.cards?.[cardId], remote.cards?.[cardId]);
+    cards[cardId] = mergeCardState(normalizedLocal.cards?.[cardId], normalizedRemote.cards?.[cardId]);
   });
-  return { ...initialStudyProgress, ...remote, ...local, cards };
+  return { ...initialStudyProgress, ...normalizedRemote, ...normalizedLocal, cards };
 }
 
 function mergeDoubts(localDoubts = [], remoteDoubts = []) {
@@ -170,8 +172,12 @@ export function getLocalState() {
 
 export function saveLocalState(state) {
   if (!canUseStorage()) return;
+  const currentStudyProgress = readJson(STUDY_KEY, initialStudyProgress);
+  const nextStudyProgress = state?.studyProgress
+    ? mergeStudyProgress(state.studyProgress, currentStudyProgress)
+    : currentStudyProgress;
   writeJson(STORAGE_KEY, { ...initialProgress, ...(state?.testProgress || {}) });
-  writeJson(STUDY_KEY, { ...initialStudyProgress, ...(state?.studyProgress || {}) });
+  writeJson(STUDY_KEY, normalizeStudyProgress(nextStudyProgress));
   writeJson(TUTOR_KEY, { ...initialTutorProgress, ...(state?.tutorProgress || {}) });
   writeSyncMeta({ updatedAt: state?.updatedAt || new Date().toISOString() });
   window.dispatchEvent(new CustomEvent("fisica-progress-reloaded"));
