@@ -10,10 +10,46 @@ const statusLabel = {
   "sin-marcar": "Sin marcar",
 };
 
+function DetailContent({ value, list = false }) {
+  if (!value || (Array.isArray(value) && !value.length)) return null;
+  const items = Array.isArray(value) ? value : [value];
+
+  if (list) {
+    return (
+      <ul>
+        {items.map((item) => (
+          <li key={item}>
+            <MathText>{item}</MathText>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  return (
+    <div className="detail-paragraph-stack">
+      {items.map((item) => (
+        <MathText as="p" key={item}>{item}</MathText>
+      ))}
+    </div>
+  );
+}
+
+function DetailBlock({ title, value, list = false, className = "" }) {
+  if (!value || (Array.isArray(value) && !value.length)) return null;
+  return (
+    <section className={className}>
+      <strong>{title}</strong>
+      <DetailContent value={value} list={list} />
+    </section>
+  );
+}
+
 export default function StudyCard({ card, progress, onMark, onPractice }) {
   const [showAnswer, setShowAnswer] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const state = getStudyCardState(progress, card.id);
+  const details = card.details || {};
 
   return (
     <article className={`study-card priority-${card.prioridad}`}>
@@ -39,35 +75,19 @@ export default function StudyCard({ card, progress, onMark, onPractice }) {
 
       <button className="soft-toggle" type="button" onClick={() => setShowDetails((value) => !value)}>
         {showDetails ? <EyeOff size={17} /> : <Eye size={17} />}
-        {showDetails ? "Ocultar detalles" : "Ver detalles"}
+        {showDetails ? "Ocultar detalles" : "Ver explicacion completa"}
       </button>
 
       {showDetails && (
-        <div className="study-detail-grid">
-          {card.variables.length > 0 && (
-            <div>
-              <strong>Variables</strong>
-              <ul>
-                {card.variables.map((variable) => (
-                  <li key={variable}>
-                    <MathText>{variable}</MathText>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          <div>
-            <strong>Cuando se usa</strong>
-            <MathText as="p">{card.cuandoSeUsa}</MathText>
-          </div>
-          <div className="mistake-box">
-            <strong>Error tipico</strong>
-            <MathText as="p">{card.errorTipico}</MathText>
-          </div>
-          <div>
-            <strong>Mini ejemplo</strong>
-            <MathText as="p">{card.miniEjemplo}</MathText>
-          </div>
+        <div className="study-detail-panel">
+          <DetailBlock title="Explicacion del concepto" value={details.explanation} />
+          <DetailBlock title="Significado fisico de la formula" value={details.physicalMeaning} />
+          <DetailBlock title="Variables" value={details.variables || card.variables} list />
+          <DetailBlock title="Cuando se usa" value={details.whenToUse || card.cuandoSeUsa} list={Array.isArray(details.whenToUse)} />
+          <DetailBlock title="Como reconocerlo en un enunciado" value={details.recognition} />
+          <DetailBlock title="Mini ejemplo" value={details.miniExample || card.miniEjemplo} />
+          <DetailBlock title="Error tipico" value={details.commonMistake || card.errorTipico} className="mistake-box" />
+          <DetailBlock title="Resumen final para examen" value={details.examSummary} className="exam-summary-box" />
         </div>
       )}
 

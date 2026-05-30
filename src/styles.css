@@ -1186,7 +1186,14 @@ code {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.study-detail-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .study-detail-grid > div,
+.study-detail-panel > section,
 .active-recall-box {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1194,11 +1201,19 @@ code {
   background: #ffffff;
 }
 
+.study-detail-panel > section:first-child,
+.study-detail-panel > section:last-child {
+  grid-column: 1 / -1;
+}
+
+.study-detail-panel strong,
 .study-detail-grid strong {
   display: block;
   margin-bottom: 6px;
 }
 
+.study-detail-panel p,
+.study-detail-panel ul,
 .study-detail-grid p,
 .study-detail-grid ul,
 .active-recall-box p {
@@ -1207,14 +1222,26 @@ code {
   line-height: 1.45;
 }
 
+.study-detail-panel ul,
 .study-detail-grid ul {
   padding-left: 18px;
+}
+
+.detail-paragraph-stack {
+  display: grid;
+  gap: 8px;
 }
 
 .mistake-box,
 .mistake-line {
   background: #fff7ed;
   color: #7c2d12;
+}
+
+.exam-summary-box {
+  background: #ecfdf5;
+  color: #14532d;
+  border-color: #bbf7d0;
 }
 
 .active-recall-box {
@@ -1617,6 +1644,7 @@ code {
   .quick-start-grid,
   .study-layout,
   .study-toolbar,
+  .study-detail-panel,
   .study-detail-grid,
   .last-minute-grid,
   .settings-hero,

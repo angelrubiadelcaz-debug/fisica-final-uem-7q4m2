@@ -199,8 +199,13 @@ const rawStudyCards = [
     titulo: "Flujo electrico y Gauss",
     prioridad: "alta",
     explicacionCorta: "El flujo neto por una superficie cerrada depende de la carga encerrada.",
-    formula: "integral E dA = Q_enc / epsilon0",
-    variables: ["Q_enc: carga encerrada, en C", "epsilon0: permitividad del vacio"],
+    formula: String.raw`\[\oint \vec{E}\cdot d\vec{A} = \frac{Q_{\text{enc}}}{\varepsilon_0}\]`,
+    variables: [
+      String.raw`\(\vec{E}\): campo electrico`,
+      String.raw`\(d\vec{A}\): vector diferencial de superficie`,
+      String.raw`\(Q_{\text{enc}}\): carga encerrada`,
+      String.raw`\(\varepsilon_0\): permitividad electrica del vacio`,
+    ],
     cuandoSeUsa: "Cuando la superficie es cerrada y hay simetria alta.",
     errorTipico: "Contar cargas exteriores como carga encerrada.",
     miniEjemplo: "Una carga exterior puede cambiar E local, pero no Q_enc.",
@@ -1612,57 +1617,166 @@ function relatedQuestionIdsFor(card) {
 }
 
 const conciseExplanations = {
-  "mrua-velocidad-posicion": "Si la aceleracion es constante, usa las ecuaciones de MRUA.",
-  "trabajo-angulo": "El trabajo cuenta solo la fuerza que va con el desplazamiento.",
-  "movimiento-circular-centripeta": "En una curva puede haber aceleracion aunque la rapidez no cambie.",
-  "carga-electrica-signo": "La carga tiene signo: iguales se repelen y opuestas se atraen.",
-  "campo-electrico-fuerza-carga": "El campo dice que fuerza recibe una carga positiva de prueba.",
-  "simetria-plana-esferica": "La forma de la carga decide como cambia el campo con la distancia.",
-  "potencial-coulomb-1r": "El potencial de una carga puntual baja como 1/r y conserva el signo.",
-  "trabajo-electrico-equipotencial": "El trabajo electrico depende de Delta V, no del camino.",
-  "conductores-equilibrio": "Dentro de un conductor en equilibrio, E es nulo y V es constante.",
-  "efecto-punta-apantallamiento": "Las puntas concentran carga; los conductores pueden apantallar.",
-  "dielectricos-campo-capacidad": "Un dielectrico aumenta C y reduce el campo interno.",
-  "joule-potencia": "La potencia en una resistencia depende de que dato este fijo.",
-  "lorentz-magnetica": "Una carga en movimiento dentro de B puede sentir fuerza magnetica.",
-  "ciclotron-radio": "Si v es perpendicular a B, la carga gira en circunferencia.",
-  "selector-velocidades": "E y B pueden compensarse solo para una velocidad concreta.",
-  "faraday-lenz": "Cambiar el flujo magnetico induce una fem que se opone al cambio.",
-  "mas-basico": "En MAS, la aceleracion apunta hacia el equilibrio.",
-  "periodo-frecuencia-omega": "Periodo y frecuencia son inversos; omega mide ritmo angular.",
-  "periodo-muelle": "En un muelle ideal, el periodo depende de m y k.",
-  "energia-mas": "En MAS ideal, la energia total se conserva.",
-  "onda-v-lambda-f": "En una onda, v, lambda y f estan relacionadas.",
-  "onda-velocidad-medio": "La onda avanza; las particulas del medio solo vibran.",
-  "doppler-trampa-signos": "Primero decide si fuente y observador se acercan o se alejan.",
-  "maxwell-ondas-em": "Una onda electromagnetica puede viajar sin medio material.",
-  "fotones-espectro": "Mayor frecuencia significa menor lambda y mas energia por foton.",
-  "panel-solar-irradiancia": "La energia util depende de irradiancia, area, tiempo y eficiencia.",
-  "curie-histeresis": "Curie elimina ferromagnetismo; histeresis indica memoria.",
-  "reflexion-total": "Reflexion total: de mayor a menor indice y con angulo suficiente.",
-  "dispersion-difusion": "Dispersion separa colores; difusion reparte luz.",
-  "polarizacion-malus": "La polarizacion marca la direccion del campo electrico.",
-  "fotoelectrico-umbral": "El fotoelectrico depende de la frecuencia, no solo de intensidad.",
-  "transistor-interruptor": "Un transistor en corte o saturacion puede actuar como interruptor.",
-  "temperatura-kelvin": "En termodinamica, las temperaturas de formulas van en kelvin.",
-  "procesos-termodinamicos": "Cada proceso iso mantiene fija una magnitud.",
-  "conduccion-fourier": "La conduccion pasa calor por contacto.",
-  "radiacion-stefan": "La radiacion termica crece mucho al subir la temperatura absoluta.",
-  "circuito-termico": "En circuitos termicos, mas resistencia reduce la potencia.",
-  "lineas-campo-electrico": "Las lineas muestran direccion y sentido de E.",
-  "corrientes-paralelas": "Dos corrientes paralelas se atraen o repelen segun sus sentidos.",
-  "fuerza-conductor-corriente": "Un conductor con corriente dentro de B puede sufrir fuerza.",
-  "sismologia-ondas": "Las ondas sismicas se comparan por tiempos y escalas no lineales.",
-  "fuentes-luz": "Cada fuente emite luz por un mecanismo distinto.",
-  "campo-gravitatorio-analogias": "La gravedad puntual es atractiva y baja como 1/r2.",
-  "resistencias-termicas-serie": "En capas en serie, las resistencias termicas se suman.",
+  "mrua-velocidad-posicion": "En MRUA la aceleracion es constante, por eso velocidad y posicion se calculan con ecuaciones fijas.",
+  "newton-fuerza-neta": "La aceleracion depende de la fuerza neta aplicada al cuerpo, no de una fuerza aislada.",
+  "trabajo-angulo": "El trabajo mide la parte de la fuerza que actua en la direccion del desplazamiento.",
+  "energia-cinetica-cuadrado": "La energia cinetica crece con el cuadrado de la velocidad, no de forma lineal.",
+  "movimiento-circular-centripeta": "En movimiento circular puede haber aceleracion aunque el modulo de la velocidad sea constante.",
+  "hooke-fuerza-restauradora": "En un muelle ideal, la fuerza elastica apunta hacia la posicion de equilibrio.",
+  "carga-electrica-signo": "El signo de la carga determina si dos cargas se atraen o se repelen.",
+  "coulomb-inversa-cuadrado": "La fuerza electrica entre cargas puntuales disminuye con el cuadrado de la distancia.",
+  "campo-electrico-fuerza-carga": "El campo electrico indica la fuerza que recibiria una carga positiva de prueba.",
+  "superposicion-vectorial": "Cuando hay varias fuentes, el campo total se obtiene sumando vectores.",
+  "flujo-gauss-carga-encerrada": "La ley de Gauss relaciona el flujo cerrado con la carga neta encerrada.",
+  "simetria-plana-esferica": "La simetria de la distribucion de carga determina como varia el campo con la distancia.",
+  "potencial-escalar": "El potencial electrico mide energia por unidad de carga y no tiene direccion.",
+  "potencial-coulomb-1r": "El potencial de una carga puntual conserva el signo de la carga y disminuye como 1/r.",
+  "trabajo-electrico-equipotencial": "En electrostatica, el trabajo depende de la diferencia de potencial entre puntos.",
+  "conductores-equilibrio": "En equilibrio electrostatico, el campo dentro del conductor es nulo y el potencial es constante.",
+  "conductores-contacto-potencial": "Cuando dos conductores se conectan, la carga se redistribuye hasta igualar el potencial.",
+  "efecto-punta-apantallamiento": "Las puntas concentran campo electrico; un conductor puede reducir el campo en su interior.",
+  "capacidad-definicion": "La capacidad indica cuanta carga puede almacenar un sistema por cada voltio aplicado.",
+  "condensador-plano-geometria": "En un condensador plano, aumentar el area aumenta C y separar placas la reduce.",
+  "energia-condensador": "Un condensador almacena energia en el campo electrico creado entre sus placas.",
+  "capacitores-serie-paralelo": "Las reglas de asociacion dependen de si los condensadores comparten carga o tension.",
+  "dielectricos-campo-capacidad": "Un dielectrico se polariza, reduce el campo interno y aumenta la capacidad.",
+  "corriente-definicion": "La corriente electrica mide la carga que atraviesa una seccion por unidad de tiempo.",
+  "ohm-resistor": "En un resistor ohmico, la tension y la corriente son proporcionales.",
+  "resistencia-geometria": "La resistencia aumenta con la longitud del conductor y disminuye al aumentar su seccion.",
+  "joule-potencia": "La potencia disipada en una resistencia depende de la magnitud que se mantenga fija.",
+  "resistencias-serie-paralelo": "En resistencias, la serie suma valores y el paralelo suma inversas.",
+  "lorentz-magnetica": "Una carga en movimiento dentro de un campo magnetico puede experimentar una fuerza perpendicular.",
+  "ciclotron-radio": "Si la velocidad es perpendicular al campo magnetico, la carga describe una trayectoria circular.",
+  "selector-velocidades": "Un selector usa campos electrico y magnetico para dejar pasar solo una velocidad concreta.",
+  "campo-hilo-ampere": "Una corriente rectilinea genera un campo magnetico circular alrededor del hilo.",
+  "solenoide-campo": "En un solenoide largo, el campo interior es aproximadamente uniforme.",
+  "flujo-magnetico": "El flujo magnetico mide el campo que atraviesa el area efectiva de una espira.",
+  "faraday-lenz": "Una variacion de flujo magnetico induce una fem cuyo sentido se opone al cambio.",
+  "autoinduccion-inductor": "Un inductor se opone a cambios bruscos de corriente mediante una fem inducida.",
+  "mas-basico": "En el movimiento armonico simple, la aceleracion es proporcional al desplazamiento y apunta al equilibrio.",
+  "periodo-frecuencia-omega": "Periodo y frecuencia son magnitudes inversas; la frecuencia angular expresa el ritmo en radianes.",
+  "periodo-muelle": "En un muelle ideal, el periodo depende de la masa y de la constante elastica.",
+  "energia-mas": "En MAS ideal, la energia pasa de cinetica a potencial, pero la energia total se conserva.",
+  "onda-v-lambda-f": "En una onda periodica, velocidad, longitud de onda y frecuencia estan relacionadas por el medio.",
+  "onda-velocidad-medio": "La perturbacion se propaga, pero las particulas del medio oscilan alrededor del equilibrio.",
+  "onda-esferica-intensidad": "En una onda esferica, la misma potencia se reparte sobre superficies cada vez mayores.",
+  "sonido-decibelios": "El nivel sonoro usa una escala logaritmica para comparar intensidades muy distintas.",
+  "doppler-acercamiento": "En el efecto Doppler, acercarse aumenta la frecuencia percibida y alejarse la disminuye.",
+  "doppler-trampa-signos": "Antes de aplicar signos en Doppler, decide si la distancia fuente-observador aumenta o disminuye.",
+  "batidos-diferencia": "Los batidos aparecen al superponer dos ondas de frecuencias muy proximas.",
+  "ondas-estacionarias-nodos": "Una onda estacionaria combina nodos fijos y puntos de amplitud maxima.",
+  "cuerda-tubo-armonicos": "Las condiciones de frontera determinan que armonicos pueden existir en cuerdas y tubos.",
+  "maxwell-ondas-em": "Una onda electromagnetica es una propagacion acoplada de campos electrico y magnetico.",
+  "fotones-espectro": "Al aumentar la frecuencia, disminuye la longitud de onda y aumenta la energia del foton.",
+  "panel-solar-irradiancia": "La energia util de un panel depende de irradiancia, area, tiempo y rendimiento.",
+  "materiales-magneticos": "Los materiales responden de forma diferente segun como se alinean sus momentos magneticos.",
+  "curie-histeresis": "La temperatura de Curie destruye el orden ferromagnetico; la histeresis muestra memoria magnetica.",
+  "momento-magnetico-espira": "Una espira con corriente se comporta como un dipolo magnetico en un campo externo.",
+  "indice-snell": "Al pasar de un medio a otro, la luz cambia de velocidad y puede cambiar de direccion.",
+  "reflexion-total": "La reflexion total solo ocurre al pasar de mayor a menor indice con angulo suficiente.",
+  "dispersion-difusion": "La dispersion separa colores; la difusion reparte la luz en muchas direcciones.",
+  "polarizacion-malus": "La polarizacion describe la direccion de oscilacion del campo electrico de la luz.",
+  "fotoelectrico-umbral": "En el efecto fotoelectrico importa la frecuencia del foton, no solo la intensidad.",
+  "bandas-semiconductores": "La separacion entre bandas permite distinguir metales, semiconductores y aislantes.",
+  "diodo-pn": "Una union PN conduce mejor en polarizacion directa que en polarizacion inversa.",
+  "transistor-interruptor": "Un transistor puede funcionar como interruptor al pasar entre corte y saturacion.",
+  "led-fotodetector-gap": "En semiconductores, la energia del foton se compara con el gap de banda.",
+  "temperatura-kelvin": "En formulas termodinamicas, la temperatura debe expresarse en kelvin.",
+  "calor-no-temperatura": "El calor es energia transferida por diferencia de temperatura, no una propiedad almacenada.",
+  "primer-principio-signos": "El primer principio relaciona calor, trabajo y cambio de energia interna.",
+  "procesos-termodinamicos": "Cada proceso termodinamico mantiene fija una magnitud o anula un intercambio.",
+  "calor-sensible": "El calor sensible cambia la temperatura mientras la sustancia mantiene la fase.",
+  "calor-latente": "Durante un cambio de fase ideal, el calor cambia el estado y la temperatura permanece constante.",
+  "maquina-termica-rendimiento": "Una maquina termica convierte solo una parte del calor absorbido en trabajo util.",
+  "carnot-kelvin": "El rendimiento de Carnot fija el limite teorico entre dos focos a temperaturas en kelvin.",
+  "cop-refrigerador": "El COP mide cuanto calor se extrae del foco frio por cada unidad de trabajo aportado.",
+  "entropia-segundo-principio": "En un proceso real, la entropia total del universo no puede disminuir.",
+  "conduccion-fourier": "La conduccion transfiere calor por contacto y depende del gradiente de temperatura.",
+  "conveccion-newton": "La conveccion combina intercambio de calor con movimiento de un fluido.",
+  "radiacion-stefan": "La radiacion termica depende fuertemente de la temperatura absoluta.",
+  "circuito-termico": "Un circuito termico usa resistencias para relacionar diferencia de temperatura y potencia.",
+  "lineas-campo-electrico": "Las lineas de campo indican la direccion del campo y la densidad visual sugiere intensidad.",
+  "ruptura-dielectrica": "Un dielectrico deja de aislar si el campo supera su valor critico.",
+  "corrientes-paralelas": "Dos corrientes paralelas interactuan magneticamente segun el sentido relativo de las corrientes.",
+  "fuerza-conductor-corriente": "Un conductor con corriente dentro de un campo magnetico puede experimentar una fuerza.",
+  "sismologia-ondas": "Las ondas sismicas se analizan con tiempos de llegada y escalas no lineales.",
+  "fuentes-luz": "Las fuentes de luz se distinguen por el mecanismo fisico que produce la emision.",
+  "campo-gravitatorio-analogias": "El campo gravitatorio de una masa puntual es atractivo y disminuye como 1/r2.",
+  "resistencias-termicas-serie": "En capas atravesadas por el mismo flujo, las resistencias termicas se suman.",
 };
+
+const detailedExplanations = {
+  "calor-latente": {
+    explanation: [
+      "El calor latente es el calor que una sustancia absorbe o cede mientras cambia de fase.",
+      "Durante un cambio de fase ideal, la temperatura permanece constante. La energia no aumenta la agitacion termica media, sino que se emplea en cambiar la estructura interna de la sustancia.",
+      String.raw`Por ejemplo, mientras el hielo se funde a \(0^\circ\text{C}\), el calor recibido se utiliza en pasar de solido a liquido, no en subir la temperatura.`,
+    ],
+    physicalMeaning:
+      "Un valor grande de L indica que hace falta mucha energia para completar el cambio de fase de cada kilogramo de sustancia.",
+    variables: [
+      String.raw`\(Q\): calor intercambiado`,
+      String.raw`\(m\): masa de la sustancia`,
+      String.raw`\(L\): calor latente del cambio de fase`,
+    ],
+    whenToUse: [
+      "Fusion o solidificacion.",
+      "Vaporizacion o condensacion.",
+      "Sublimacion o cambio de estado indicado en el enunciado.",
+    ],
+    recognition:
+      String.raw`Si el enunciado dice que la sustancia cambia de fase, normalmente se usa \(Q=mL\), no \(Q=mc\Delta T\).`,
+    miniExample:
+      String.raw`Si una masa de hielo se funde completamente a \(0^\circ\text{C}\), el calor se calcula con \(Q=mL_f\), donde \(L_f\) es el calor latente de fusion.`,
+    commonMistake:
+      "Pensar que aportar calor siempre aumenta la temperatura. En un cambio de fase ideal, la temperatura se mantiene constante mientras dura el cambio.",
+    examSummary:
+      String.raw`En un cambio de fase ideal se usa \(Q=mL\). La energia cambia el estado de la sustancia, no su temperatura.`,
+  },
+};
+
+function recognitionHint(card) {
+  const terms = [...new Set([card.subtema, ...(card.etiquetas || []).slice(0, 3)])].filter(Boolean);
+  if (!terms.length) return "Reconocelo buscando la condicion fisica que fija el enunciado antes de elegir una formula.";
+  return `Reconocelo si el enunciado menciona ${terms.join(", ")} o pide interpretar esa relacion fisica.`;
+}
+
+function defaultPhysicalMeaning(card) {
+  if (!card.formula) {
+    return "El concepto se reconoce por la condicion fisica del enunciado. Antes de contestar, identifica que magnitud cambia y cual permanece fija.";
+  }
+  return "La formula resume una relacion entre magnitudes. Antes de sustituir datos, revisa unidades, signos y que variable se mantiene constante.";
+}
+
+function defaultExamSummary(card) {
+  const formulaPart = card.formula ? " Usa la formula solo despues de identificar las magnitudes y sus unidades." : "";
+  return `${card.explicacionCorta}${formulaPart}`;
+}
+
+function buildDetails(card) {
+  return {
+    explanation:
+      `${card.explicacionCorta} La clave en un test es reconocer que situacion fisica describe el enunciado antes de hacer calculos.`,
+    physicalMeaning: defaultPhysicalMeaning(card),
+    variables: card.variables || [],
+    whenToUse: card.cuandoSeUsa,
+    recognition: recognitionHint(card),
+    miniExample: card.miniEjemplo,
+    commonMistake: card.errorTipico,
+    examSummary: defaultExamSummary(card),
+    ...(detailedExplanations[card.id] || {}),
+  };
+}
 
 export const studyCards = rawStudyCards.map((sourceCard) => {
   const { relatedTerms, ...card } = sourceCard;
-  return {
+  const cardWithConciseText = {
     ...card,
     explicacionCorta: conciseExplanations[card.id] || card.explicacionCorta,
+  };
+  return {
+    ...cardWithConciseText,
+    details: buildDetails(cardWithConciseText),
     formula: card.formula ? toDisplayLatex(card.formula) : "",
     relatedQuestionIds: relatedQuestionIdsFor(sourceCard),
   };
