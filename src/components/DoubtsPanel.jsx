@@ -1,17 +1,15 @@
 import { Brain, BookOpen, HelpCircle, RotateCcw } from "lucide-react";
 import { useMemo } from "react";
-import { studyCards } from "../data/studyCards";
-import { getStudyCardState } from "../utils/studyStorage";
-import { loadStudyProgress, loadTutorProgress } from "../utils/progressRepository";
+import { getStudyCardState, loadStudyProgress, loadTutorProgress } from "../utils/progressRepository";
 import MathText from "./MathText";
 
-export default function DoubtsPanel({ onGoStudy, onPracticeCards }) {
+export default function DoubtsPanel({ onGoStudy, onPracticeCards, cards = [], course }) {
   const tutorProgress = loadTutorProgress();
   const studyProgress = loadStudyProgress();
 
   const weakCards = useMemo(
-    () => studyCards.filter((card) => ["repasar", "dudoso"].includes(getStudyCardState(studyProgress, card.id).status)),
-    [studyProgress],
+    () => cards.filter((card) => ["repasar", "dudoso"].includes(getStudyCardState(studyProgress, card.id).status)),
+    [cards, studyProgress],
   );
 
   const topTopics = Object.entries(tutorProgress.topicCounts || {})
@@ -28,7 +26,7 @@ export default function DoubtsPanel({ onGoStudy, onPracticeCards }) {
         <div>
           <p className="eyebrow">Mis dudas</p>
           <h2>Lo que mas conviene repasar</h2>
-          <p>Dudas del tutor, tarjetas flojas y recomendaciones rapidas.</p>
+          <p>Dudas del tutor, tarjetas flojas y recomendaciones rapidas de {course?.shortName || "la asignatura"}.</p>
         </div>
         <button className="primary" type="button" onClick={onGoStudy}>
           <Brain size={18} />

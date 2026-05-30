@@ -1,12 +1,11 @@
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
-import { formulas } from "../data/formulas";
 import MathText from "./MathText";
 
-export default function FormulaPanel() {
+export default function FormulaPanel({ formulas = [], course }) {
   const [topic, setTopic] = useState("all");
   const [search, setSearch] = useState("");
-  const topics = useMemo(() => [...new Set(formulas.map((formula) => formula.tema))], []);
+  const topics = useMemo(() => [...new Set(formulas.map((formula) => formula.tema))], [formulas]);
   const visible = formulas.filter((formula) => {
     const topicMatch = topic === "all" || formula.tema === topic;
     const haystack = `${formula.tema} ${formula.nombre} ${formula.formula} ${formula.uso} ${formula.advertencia}`.toLowerCase();
@@ -16,6 +15,10 @@ export default function FormulaPanel() {
   return (
     <section className="formula-shell">
       <div className="formula-toolbar">
+        <div>
+          <p className="eyebrow">{course?.resourceLabel || "Formulario"}</p>
+          <h2>{course?.resourceLabel || "Formulario"}</h2>
+        </div>
         <label className="field">
           <span>Tema</span>
           <select value={topic} onChange={(event) => setTopic(event.target.value)}>
@@ -30,7 +33,7 @@ export default function FormulaPanel() {
         <label className="field search-field">
           <span>Buscar</span>
           <Search size={18} />
-          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Coulomb, Carnot..." />
+          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={course?.searchPlaceholder || "Coulomb, Carnot..."} />
         </label>
       </div>
 
@@ -41,7 +44,13 @@ export default function FormulaPanel() {
               <span className="formula-topic">{formula.tema}</span>
               <h3>{formula.nombre}</h3>
             </div>
-            <MathText as="div" block className="math-card-formula">{formula.formula}</MathText>
+            {formula.formula && (
+              formula.kind === "code" ? (
+                <pre className="code-card-snippet"><code>{formula.formula}</code></pre>
+              ) : (
+                <MathText as="div" block className="math-card-formula">{formula.formula}</MathText>
+              )
+            )}
             <MathText as="p">
               {`Variables: ${formula.variables}`}
             </MathText>

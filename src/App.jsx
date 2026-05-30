@@ -1,7 +1,8 @@
-import { BarChart3, BookOpen, Brain, ClipboardList, HelpCircle, Home, ListChecks, Settings } from "lucide-react";
+import { BarChart3, BookOpen, Brain, ClipboardList, HelpCircle, Home, ListChecks, Repeat2, Settings } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import FormulaPanel from "./components/FormulaPanel";
 import AiTutorButton from "./components/ai/AiTutorButton";
+import CourseSelector from "./components/CourseSelector";
 import DoubtsPanel from "./components/DoubtsPanel";
 import QuestionCard from "./components/QuestionCard";
 import ResultsPanel from "./components/ResultsPanel";
@@ -10,7 +11,7 @@ import SetupPanel from "./components/SetupPanel";
 import StatsPanel from "./components/StatsPanel";
 import StudyMode from "./components/StudyMode";
 import UserMenu from "./components/UserMenu";
-import { questionTypes, questions, topics } from "./data/allQuestions";
+import { courses, getCourseById } from "./data/courses";
 import { isSupabaseConfigured, supabase } from "./lib/supabaseClient";
 import {
   clearProgress,
@@ -25,10 +26,23 @@ import {
   syncProgress,
 } from "./utils/progressRepository";
 import { getFilteredQuestions, gradeQuiz, pickQuestions } from "./utils/quiz";
+import { loadSelectedCourseId, saveSelectedCourseId, setActiveCourseId } from "./utils/courseStorage";
 
 const DEFAULT_COUNT = 20;
 
 export default function App() {
+  const [selectedCourseId, setSelectedCourseId] = useState(() => {
+    const storedCourseId = loadSelectedCourseId();
+    setActiveCourseId(storedCourseId || "physics");
+    return storedCourseId;
+  });
+  const course = getCourseById(selectedCourseId);
+  const questions = course?.data.questions || [];
+  const topics = course?.data.topics || [];
+  const questionTypes = course?.data.questionTypes || [];
+  const formulas = course?.data.formulas || course?.data.cheatsheet || [];
+  const studyCards = course?.data.studyCards || [];
+  const studyTopics = course?.data.studyTopics || [];
   const [section, setSection] = useState("test");
   const [studyView, setStudyView] = useState("cards");
   const [selectedTopics, setSelectedTopics] = useState(["all"]);
@@ -50,6 +64,24 @@ export default function App() {
   const syncTimerRef = useRef(null);
   const suppressNextSyncRef = useRef(false);
   const suppressSaveEffectRef = useRef(false);
+
+  useEffect(() => {
+    if (!course) return;
+    setActiveCourseId(course.id);
+    suppressSaveEffectRef.current = true;
+    setProgress(loadProgress());
+    setSelectedTopics(["all"]);
+    setDifficulty("all");
+    setQuestionType("all");
+    setSearch("");
+    setCount(DEFAULT_COUNT);
+    setQuizQuestions([]);
+    setAnswers({});
+    setCurrent(0);
+    setResult(null);
+    setSection("test");
+    setStudyView("cards");
+  }, [course?.id]);
 
   useEffect(() => {
     if (suppressSaveEffectRef.current) {
@@ -84,7 +116,7 @@ export default function App() {
   useEffect(() => {
     if (!session?.user) return;
     handleSyncNow(session);
-  }, [session?.user?.id]);
+  }, [session?.user?.id, course?.id]);
 
   useEffect(() => {
     function handleLocalChange() {
@@ -108,15 +140,15 @@ export default function App() {
       window.removeEventListener("fisica-progress-changed", handleLocalChange);
       window.clearTimeout(syncTimerRef.current);
     };
-  }, [session?.user?.id]);
+  }, [session?.user?.id, course?.id]);
 
   const pool = useMemo(
     () => getFilteredQuestions(questions, selectedTopics, difficulty, search, questionType),
-    [selectedTopics, difficulty, search, questionType],
+    [questions, selectedTopics, difficulty, search, questionType],
   );
   const failedQuestions = useMemo(
-    () => questions.filter((question) => progress.failedIds.includes(question.id)),
-    [progress.failedIds],
+    () => questions.filter((question) => (progress.failedIds || []).includes(question.id)),
+    [questions, progress.failedIds],
   );
   const maxCount = pool.length;
   const testActive = quizQuestions.length > 0 && !result;
@@ -165,7 +197,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `progreso-fisica-${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = `progreso-${course?.id || "curso"}-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     URL.revokeObjectURL(url);
   }
@@ -355,12 +387,42 @@ export default function App() {
     setAnswers((previous) => ({ ...previous, [question.id]: optionIndex }));
   }
 
+  function chooseCourse(courseId) {
+    setActiveCourseId(courseId);
+    saveSelectedCourseId(courseId);
+    setSelectedCourseId(courseId);
+  }
+
+  function goToCourseSelector() {
+    saveSelectedCourseId("");
+    setSelectedCourseId("");
+    setQuizQuestions([]);
+    setAnswers({});
+    setResult(null);
+  }
+
+  if (!course) {
+    return <CourseSelector courses={courses} onSelect={chooseCourse} />;
+  }
+
   return (
     <main className="app">
       <header className="app-header">
         <div>
-          <p className="eyebrow">Fundamentos Fisicos</p>
-          <h1>Test Final de Fisica</h1>
+          <p className="eyebrow">{course.eyebrow}</p>
+          <h1>{course.title}</h1>
+          <button
+            className="course-switch"
+            type="button"
+            onPointerDown={(event) => {
+              event.preventDefault();
+              goToCourseSelector();
+            }}
+            onClick={goToCourseSelector}
+          >
+            <Repeat2 size={16} />
+            Cambiar asignatura
+          </button>
         </div>
         <div className="header-controls">
           <nav className="top-tabs" aria-label="Secciones">
@@ -370,7 +432,7 @@ export default function App() {
             </button>
             <button className={section === "formulas" ? "active" : ""} type="button" onClick={() => setSection("formulas")}>
               <BookOpen size={18} />
-              Formulario
+              {course.resourceLabel}
             </button>
             <button className={section === "study" ? "active" : ""} type="button" onClick={() => goStudy("cards")}>
               <Brain size={18} />
@@ -400,13 +462,24 @@ export default function App() {
       </header>
 
       {section === "formulas" ? (
-        <FormulaPanel />
+        <FormulaPanel formulas={formulas} course={course} />
       ) : section === "study" ? (
-        <StudyMode initialView={studyView} onPracticeConcept={practiceStudyConcept} />
+        <StudyMode
+          initialView={studyView}
+          onPracticeConcept={practiceStudyConcept}
+          cards={studyCards}
+          topics={studyTopics}
+          course={course}
+        />
       ) : section === "stats" ? (
         <StatsPanel progress={progress} onReset={resetProgress} onPracticeFailed={practiceFailed} failedCount={failedQuestions.length} />
       ) : section === "doubts" ? (
-        <DoubtsPanel onGoStudy={() => goStudy("cards")} onPracticeCards={(cards) => practiceStudyConcept({ cards })} />
+        <DoubtsPanel
+          onGoStudy={() => goStudy("cards")}
+          onPracticeCards={(cards) => practiceStudyConcept({ cards })}
+          cards={studyCards}
+          course={course}
+        />
       ) : section === "settings" ? (
         <SettingsPanel
           session={session}
@@ -488,6 +561,7 @@ export default function App() {
             onGoFormulas={() => setSection("formulas")}
             onGoStats={() => setSection("stats")}
             onGoSettings={() => setSection("settings")}
+            course={course}
           />
           <section className="coverage-strip">
             <div>
@@ -506,7 +580,7 @@ export default function App() {
           </section>
         </>
       )}
-      <AiTutorButton onPracticeCards={(cards) => practiceStudyConcept({ cards })} onOpenStudy={openStudyFromTutor} />
+      <AiTutorButton onPracticeCards={(cards) => practiceStudyConcept({ cards })} onOpenStudy={openStudyFromTutor} course={course} />
     </main>
   );
 }

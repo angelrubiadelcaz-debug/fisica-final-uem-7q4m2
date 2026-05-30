@@ -1,6 +1,3 @@
-import { formulas } from "../data/formulas.js";
-import { questions } from "../data/allQuestions.js";
-import { studyCards } from "../data/studyCards.js";
 import { LOCAL_TUTOR_STYLE } from "../data/tutorPrompts.js";
 
 function normalize(text = "") {
@@ -81,10 +78,18 @@ function cardHaystack(card) {
   ].join(" ");
 }
 
-export function findRelevantStudyCards(query, limit = LOCAL_TUTOR_STYLE.maxCards) {
+function resolveTutorData(courseData = {}) {
+  return {
+    studyCards: courseData.studyCards || [],
+    formulas: courseData.formulas || courseData.cheatsheet || [],
+    questions: courseData.questions || [],
+  };
+}
+
+export function findRelevantStudyCards(query, limit = LOCAL_TUTOR_STYLE.maxCards, courseData = {}) {
   const queryTokens = tokens(query);
   if (!queryTokens.length) return [];
-  return studyCards
+  return resolveTutorData(courseData).studyCards
     .map((card) => ({
       card,
       score: scoreText(queryTokens, cardHaystack(card), card.prioridad === "alta" ? 1 : 0),
@@ -95,10 +100,10 @@ export function findRelevantStudyCards(query, limit = LOCAL_TUTOR_STYLE.maxCards
     .map((item) => item.card);
 }
 
-export function findRelevantFormulas(query, limit = LOCAL_TUTOR_STYLE.maxFormulas) {
+export function findRelevantFormulas(query, limit = LOCAL_TUTOR_STYLE.maxFormulas, courseData = {}) {
   const queryTokens = tokens(query);
   if (!queryTokens.length) return [];
-  return formulas
+  return resolveTutorData(courseData).formulas
     .map((formula) => ({
       formula,
       score: scoreText(
@@ -112,10 +117,10 @@ export function findRelevantFormulas(query, limit = LOCAL_TUTOR_STYLE.maxFormula
     .map((item) => item.formula);
 }
 
-export function findRelevantQuestions(query, limit = LOCAL_TUTOR_STYLE.maxQuestions) {
+export function findRelevantQuestions(query, limit = LOCAL_TUTOR_STYLE.maxQuestions, courseData = {}) {
   const queryTokens = tokens(query);
   if (!queryTokens.length) return [];
-  return questions
+  return resolveTutorData(courseData).questions
     .map((question) => ({
       question,
       score: scoreText(
@@ -129,10 +134,10 @@ export function findRelevantQuestions(query, limit = LOCAL_TUTOR_STYLE.maxQuesti
     .map((item) => item.question);
 }
 
-export function buildTutorContext(message) {
-  const cards = findRelevantStudyCards(message);
-  const formulasFound = findRelevantFormulas(message);
-  const relatedQuestions = findRelevantQuestions(message);
+export function buildTutorContext(message, courseData = {}) {
+  const cards = findRelevantStudyCards(message, LOCAL_TUTOR_STYLE.maxCards, courseData);
+  const formulasFound = findRelevantFormulas(message, LOCAL_TUTOR_STYLE.maxFormulas, courseData);
+  const relatedQuestions = findRelevantQuestions(message, LOCAL_TUTOR_STYLE.maxQuestions, courseData);
   return { cards, formulas: formulasFound, questions: relatedQuestions };
 }
 

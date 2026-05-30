@@ -1,5 +1,5 @@
 import { Bot, Eraser, Sparkles, X } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { askTutor } from "../../services/aiTutorService";
 import { generateCardQuiz } from "../../utils/localTutorEngine";
 import {
@@ -9,25 +9,40 @@ import {
 import AiTutorInput from "./AiTutorInput";
 import AiTutorMessage from "./AiTutorMessage";
 
-const starterMessages = [
+const fallbackStarterMessages = [
   "No entiendo el efecto Doppler",
-  "¿Cuándo uso Q = mcΔT?",
-  "Explícame los batidos",
+  "¿Cuando uso Q = mcDeltaT?",
+  "Explicame los batidos",
   "Hazme una pregunta de ondas",
 ];
 
-export default function AiTutorPanel({ onClose, onPracticeCards, onOpenStudy }) {
+export default function AiTutorPanel({ onClose, onPracticeCards, onOpenStudy, course }) {
+  const starterMessages = course?.tutor?.starters || fallbackStarterMessages;
   const [messages, setMessages] = useState([
     {
       id: "welcome",
       role: "assistant",
       content:
-        "Soy tu tutor local de Física. Puedo explicar conceptos del temario, recordar fórmulas y hacerte preguntas cortas. Si activas IA real, usaré Supabase Edge Function; si falla, vuelvo al modo local.",
+        course?.tutor?.welcome ||
+        "Soy tu tutor local. Puedo explicar conceptos del temario, recordar claves y hacerte preguntas cortas. Si activas IA real, usare Supabase Edge Function; si falla, vuelvo al modo local.",
     },
   ]);
   const [loading, setLoading] = useState(false);
   const [remoteMode, setRemoteMode] = useState(false);
   const nextId = useRef(1);
+
+  useEffect(() => {
+    setMessages([
+      {
+        id: "welcome",
+        role: "assistant",
+        content:
+          course?.tutor?.welcome ||
+          "Soy tu tutor local. Puedo explicar conceptos del temario, recordar claves y hacerte preguntas cortas. Si activas IA real, usare Supabase Edge Function; si falla, vuelvo al modo local.",
+      },
+    ]);
+    nextId.current = 1;
+  }, [course?.id]);
 
   const lastContext = useMemo(() => {
     const lastAssistant = [...messages].reverse().find((message) => message.role === "assistant" && message.context);
@@ -40,7 +55,11 @@ export default function AiTutorPanel({ onClose, onPracticeCards, onOpenStudy }) 
     setLoading(true);
 
     try {
-      const response = await askTutor(messageText, { remote: remoteMode });
+      const response = await askTutor(messageText, {
+        remote: remoteMode,
+        course,
+        courseData: course?.data || {},
+      });
       const assistantMessage = {
         id: `assistant-${nextId.current++}`,
         role: "assistant",
@@ -84,7 +103,7 @@ export default function AiTutorPanel({ onClose, onPracticeCards, onOpenStudy }) 
       <div className="ai-panel-header">
         <div>
           <p className="eyebrow">Tutor IA</p>
-          <h2>Dudas de Física</h2>
+          <h2>{course?.tutor?.title || "Dudas"}</h2>
         </div>
         <button type="button" className="icon-button" onClick={onClose} aria-label="Cerrar tutor">
           <X size={18} />

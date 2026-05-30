@@ -1,9 +1,11 @@
 import { supabase } from "../lib/supabaseClient";
-import { initialProgress, STORAGE_KEY } from "../utils/storage";
-import { initialStudyProgress, normalizeStudyProgress, STUDY_KEY } from "../utils/studyStorage";
-import { initialTutorProgress, TUTOR_KEY } from "../utils/tutorStorage";
+import { courseScopedKey, DEFAULT_COURSE_ID, getActiveCourseId } from "../utils/courseStorage";
+import { initialProgress, LEGACY_STORAGE_KEY, STORAGE_PREFIX } from "../utils/storage";
+import { initialStudyProgress, LEGACY_STUDY_KEY, normalizeStudyProgress, STUDY_PREFIX } from "../utils/studyStorage";
+import { initialTutorProgress, LEGACY_TUTOR_KEY, TUTOR_PREFIX } from "../utils/tutorStorage";
 
 const SYNC_META_KEY = "fisica-sync-meta-v1";
+const KNOWN_COURSE_IDS = ["physics", "poo"];
 
 function canUseStorage() {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
@@ -30,6 +32,47 @@ function readSyncMeta() {
 
 function writeSyncMeta(meta) {
   writeJson(SYNC_META_KEY, { ...readSyncMeta(), ...meta });
+}
+
+function readCourseJson(prefix, fallback, courseId, legacyKey = "") {
+  const key = courseScopedKey(prefix, courseId);
+  if (courseId === DEFAULT_COURSE_ID && legacyKey) {
+    const current = canUseStorage() ? window.localStorage.getItem(key) : null;
+    const legacy = canUseStorage() ? window.localStorage.getItem(legacyKey) : null;
+    if (!current && legacy) {
+      try {
+        writeJson(key, JSON.parse(legacy));
+      } catch {
+        // If an old browser value is corrupt, ignore it instead of blocking sync.
+      }
+    }
+  }
+  return readJson(key, fallback);
+}
+
+function writeCourseJson(prefix, value, courseId) {
+  writeJson(courseScopedKey(prefix, courseId), value);
+}
+
+function getCourseState(courseId) {
+  return {
+    testProgress: readCourseJson(STORAGE_PREFIX, initialProgress, courseId, LEGACY_STORAGE_KEY),
+    studyProgress: readCourseJson(STUDY_PREFIX, initialStudyProgress, courseId, LEGACY_STUDY_KEY),
+    tutorProgress: readCourseJson(TUTOR_PREFIX, initialTutorProgress, courseId, LEGACY_TUTOR_KEY),
+  };
+}
+
+function normalizeStateCourses(state = {}) {
+  const courses = { ...(state.courses || {}) };
+  if (state.testProgress || state.studyProgress || state.tutorProgress) {
+    courses[DEFAULT_COURSE_ID] = {
+      ...(courses[DEFAULT_COURSE_ID] || {}),
+      testProgress: state.testProgress,
+      studyProgress: state.studyProgress,
+      tutorProgress: state.tutorProgress,
+    };
+  }
+  return courses;
 }
 
 function mergeNumber(a = 0, b = 0) {
@@ -161,24 +204,37 @@ function mergeTutorProgress(local = initialTutorProgress, remote = initialTutorP
 
 export function getLocalState() {
   const meta = readSyncMeta();
+  const courses = {};
+  KNOWN_COURSE_IDS.forEach((courseId) => {
+    courses[courseId] = getCourseState(courseId);
+  });
+  const activeCourseId = getActiveCourseId();
   return {
-    version: 1,
-    testProgress: readJson(STORAGE_KEY, initialProgress),
-    studyProgress: readJson(STUDY_KEY, initialStudyProgress),
-    tutorProgress: readJson(TUTOR_KEY, initialTutorProgress),
+    version: 2,
+    activeCourseId,
+    courses,
+    testProgress: courses[activeCourseId]?.testProgress || initialProgress,
+    studyProgress: courses[activeCourseId]?.studyProgress || initialStudyProgress,
+    tutorProgress: courses[activeCourseId]?.tutorProgress || initialTutorProgress,
     updatedAt: meta.updatedAt || new Date().toISOString(),
   };
 }
 
 export function saveLocalState(state) {
   if (!canUseStorage()) return;
-  const currentStudyProgress = readJson(STUDY_KEY, initialStudyProgress);
-  const nextStudyProgress = state?.studyProgress
-    ? mergeStudyProgress(state.studyProgress, currentStudyProgress)
-    : currentStudyProgress;
-  writeJson(STORAGE_KEY, { ...initialProgress, ...(state?.testProgress || {}) });
-  writeJson(STUDY_KEY, normalizeStudyProgress(nextStudyProgress));
-  writeJson(TUTOR_KEY, { ...initialTutorProgress, ...(state?.tutorProgress || {}) });
+  const courses = normalizeStateCourses(state);
+  const ids = new Set([...KNOWN_COURSE_IDS, ...Object.keys(courses)]);
+  ids.forEach((courseId) => {
+    const courseState = courses[courseId];
+    if (!courseState) return;
+    const currentStudyProgress = readCourseJson(STUDY_PREFIX, initialStudyProgress, courseId, LEGACY_STUDY_KEY);
+    const nextStudyProgress = courseState.studyProgress
+      ? mergeStudyProgress(courseState.studyProgress, currentStudyProgress)
+      : currentStudyProgress;
+    writeCourseJson(STORAGE_PREFIX, { ...initialProgress, ...(courseState.testProgress || {}) }, courseId);
+    writeCourseJson(STUDY_PREFIX, normalizeStudyProgress(nextStudyProgress), courseId);
+    writeCourseJson(TUTOR_PREFIX, { ...initialTutorProgress, ...(courseState.tutorProgress || {}) }, courseId);
+  });
   writeSyncMeta({ updatedAt: state?.updatedAt || new Date().toISOString() });
   window.dispatchEvent(new CustomEvent("fisica-progress-reloaded"));
 }
@@ -218,11 +274,27 @@ export async function saveRemoteState(userId, state) {
 export function mergeStates(localState = {}, remoteState = {}) {
   const localUpdated = localState.updatedAt ? new Date(localState.updatedAt).getTime() : 0;
   const remoteUpdated = remoteState.updatedAt ? new Date(remoteState.updatedAt).getTime() : 0;
+  const localCourses = normalizeStateCourses(localState);
+  const remoteCourses = normalizeStateCourses(remoteState);
+  const courseIds = new Set([...KNOWN_COURSE_IDS, ...Object.keys(remoteCourses), ...Object.keys(localCourses)]);
+  const courses = {};
+  courseIds.forEach((courseId) => {
+    const localCourse = localCourses[courseId] || {};
+    const remoteCourse = remoteCourses[courseId] || {};
+    courses[courseId] = {
+      testProgress: mergeTestProgress(localCourse.testProgress, remoteCourse.testProgress),
+      studyProgress: mergeStudyProgress(localCourse.studyProgress, remoteCourse.studyProgress),
+      tutorProgress: mergeTutorProgress(localCourse.tutorProgress, remoteCourse.tutorProgress),
+    };
+  });
+  const activeCourseId = localState.activeCourseId || remoteState.activeCourseId || getActiveCourseId();
   return {
-    version: 1,
-    testProgress: mergeTestProgress(localState.testProgress, remoteState.testProgress),
-    studyProgress: mergeStudyProgress(localState.studyProgress, remoteState.studyProgress),
-    tutorProgress: mergeTutorProgress(localState.tutorProgress, remoteState.tutorProgress),
+    version: 2,
+    activeCourseId,
+    courses,
+    testProgress: courses[activeCourseId]?.testProgress || initialProgress,
+    studyProgress: courses[activeCourseId]?.studyProgress || initialStudyProgress,
+    tutorProgress: courses[activeCourseId]?.tutorProgress || initialTutorProgress,
     updatedAt: new Date(Math.max(localUpdated, remoteUpdated, Date.now())).toISOString(),
   };
 }

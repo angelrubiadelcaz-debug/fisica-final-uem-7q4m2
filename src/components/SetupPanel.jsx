@@ -28,6 +28,7 @@ export default function SetupPanel({
   onGoFormulas,
   onGoStats,
   onGoSettings,
+  course,
 }) {
   const countOptions = [10, 20, 30, 40, 60, 100, maxCount]
     .filter((value, index, list) => value > 0 && value <= maxCount && list.indexOf(value) === index);
@@ -44,7 +45,7 @@ export default function SetupPanel({
         <button className="quick-start-card" type="button" onClick={onGoStudy}>
           <Brain size={22} />
           <strong>Estudiar rapido</strong>
-          <span>Tarjetas cortas con teoria, formulas y errores tipicos.</span>
+          <span>{course?.studyDescription || "Tarjetas cortas con teoria, formulas y errores tipicos."}</span>
         </button>
         <button className="quick-start-card" type="button" onClick={onPracticeFailed} disabled={!failedCount}>
           <RotateCcw size={22} />
@@ -58,8 +59,8 @@ export default function SetupPanel({
         </button>
         <button className="quick-start-card" type="button" onClick={onGoFormulas}>
           <BookOpen size={22} />
-          <strong>Formulario</strong>
-          <span>Formulas, variables, unidades y avisos.</span>
+          <strong>{course?.resourceLabel || "Formulario"}</strong>
+          <span>{course?.resourceDescription || "Formulas, variables, unidades y avisos."}</span>
         </button>
         <button className="quick-start-card" type="button" onClick={onGoStats}>
           <BarChart3 size={22} />
@@ -98,7 +99,7 @@ export default function SetupPanel({
           <label className="field search-field">
             <span>Buscar preguntas</span>
             <Search size={18} />
-            <input value={search} onChange={(event) => onSearchChange(event.target.value)} placeholder="Gauss, Carnot, unidad..." />
+            <input value={search} onChange={(event) => onSearchChange(event.target.value)} placeholder={course?.searchPlaceholder || "Gauss, Carnot, unidad..."} />
           </label>
         </div>
 
@@ -133,7 +134,7 @@ export default function SetupPanel({
         </div>
 
         <div className="segmented type-segmented" aria-label="Tipo de pregunta">
-          {["all", ...questionTypes.filter((value) => ["calculo corto", "teoria", "formula", "unidades", "interpretacion fisica", "tarjetas"].includes(value))].map((value) => (
+          {["all", ...questionTypes.filter((value) => ["calculo corto", "teoria", "formula", "unidades", "interpretacion fisica", "interpretacion", "sintaxis", "comparacion", "trampa tipica", "tarjetas"].includes(value))].map((value) => (
             <button
               key={value}
               className={questionType === value ? "active" : ""}
@@ -187,10 +188,14 @@ export default function SetupPanel({
         <p className="eyebrow">Estilo detectado</p>
         <h2>Preguntas cortas, con trampa limpia</h2>
         <div className="summary-list">
-          <span>Enunciados de una frase o calculo directo</span>
-          <span>Distractores por unidades, signos y proporcionalidad</span>
-          <span>Mas teoria e interpretacion que calculo largo</span>
-          <span>Temas 4-6 reforzados para el examen final</span>
+          {(course?.setupSummary || [
+            "Enunciados de una frase o calculo directo",
+            "Distractores por unidades, signos y proporcionalidad",
+            "Mas teoria e interpretacion que calculo largo",
+            "Temas 4-6 reforzados para el examen final",
+          ]).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
         </div>
       </div>
       </div>

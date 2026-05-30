@@ -5,15 +5,16 @@ import {
   serializeTutorContext,
 } from "../utils/localTutorEngine";
 
-export async function askLocalTutor(message) {
-  const context = buildTutorContext(message);
+export async function askLocalTutor(message, courseData = {}) {
+  const context = buildTutorContext(message, courseData);
   return buildLocalTutorAnswer(message, context);
 }
 
-export async function askRemoteTutor(message, context) {
+export async function askRemoteTutor(message, context, course) {
   if (!supabase) throw new Error("Supabase no esta configurado.");
   const payload = {
     message,
+    course: course ? { id: course.id, name: course.name, shortName: course.shortName } : undefined,
     context: serializeTutorContext(context || buildTutorContext(message)),
   };
   const { data, error } = await supabase.functions.invoke("ai-tutor", { body: payload });
@@ -23,10 +24,10 @@ export async function askRemoteTutor(message, context) {
 }
 
 export async function askTutor(message, options = {}) {
-  const context = buildTutorContext(message);
+  const context = buildTutorContext(message, options.courseData || {});
   if (options.remote) {
     try {
-      return await askRemoteTutor(message, context);
+      return await askRemoteTutor(message, context, options.course);
     } catch (error) {
       const local = buildLocalTutorAnswer(message, context);
       return {

@@ -1,4 +1,8 @@
-export const STUDY_KEY = "fisica-study-progress-v1";
+import { courseScopedKey, getActiveCourseId, migrateLegacyKey } from "./courseStorage";
+
+export const LEGACY_STUDY_KEY = "fisica-study-progress-v1";
+export const STUDY_PREFIX = "studyProgress";
+export const STUDY_KEY = courseScopedKey(STUDY_PREFIX);
 
 export const initialStudyProgress = {
   cards: {},
@@ -50,7 +54,9 @@ function mergeStoredProgress(nextProgress) {
 export function loadStudyProgress() {
   if (!canUseStorage()) return initialStudyProgress;
   try {
-    const stored = window.localStorage.getItem(STUDY_KEY);
+    const key = courseScopedKey(STUDY_PREFIX);
+    migrateLegacyKey(LEGACY_STUDY_KEY, key, getActiveCourseId());
+    const stored = window.localStorage.getItem(key);
     return stored ? normalizeStudyProgress(JSON.parse(stored)) : initialStudyProgress;
   } catch {
     return initialStudyProgress;
@@ -59,13 +65,13 @@ export function loadStudyProgress() {
 
 export function saveStudyProgress(progress) {
   if (!canUseStorage()) return;
-  window.localStorage.setItem(STUDY_KEY, JSON.stringify(mergeStoredProgress(progress)));
+  window.localStorage.setItem(courseScopedKey(STUDY_PREFIX), JSON.stringify(mergeStoredProgress(progress)));
   notifyProgressChanged();
 }
 
 export function clearStudyProgress() {
   if (!canUseStorage()) return;
-  window.localStorage.removeItem(STUDY_KEY);
+  window.localStorage.removeItem(courseScopedKey(STUDY_PREFIX));
   notifyProgressChanged();
 }
 

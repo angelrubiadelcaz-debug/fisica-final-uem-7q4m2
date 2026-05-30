@@ -1,6 +1,11 @@
-# Test Final de Fisica
+# Plataforma de estudio UEM
 
-Web React + Vite para estudiar Fundamentos Fisicos/Fisica con tests tipo examen, formulario, teoria relacionada, practica de falladas y estadisticas.
+Web React + Vite para estudiar varias asignaturas con tests tipo examen, formulario/chuleta, teoria relacionada, practica de falladas, tarjetas, tutor local y estadisticas.
+
+Asignaturas actuales:
+
+- Fundamentos Fisicos de la Ingenieria.
+- Programacion Orientada a Objetos.
 
 ## Instalacion
 
@@ -79,11 +84,19 @@ En local, `npm run dev` usa `/` como base para que no haya rutas raras.
 
 ## Anadir preguntas
 
-Las preguntas base estan en:
+Las preguntas de Fisica siguen estando en:
 
 ```text
 src/data/questions.js
 src/data/extraQuestions.js
+```
+
+Las preguntas de POO estan en:
+
+```text
+src/data/poo/questions.js
+src/data/poo/theoryQuestions.js
+src/data/poo/coreConcepts.js
 ```
 
 Para anadir nuevas preguntas, lo mas comodo es usar `src/data/extraQuestions.js`:
@@ -151,6 +164,81 @@ src/data/formulas.js
 ```
 
 Cada formula incluye tema, nombre, formula, variables, uso, unidad, ejemplo y advertencia/error tipico.
+
+En POO el apartado equivalente es `Chuleta POO` y sale de:
+
+```text
+src/data/poo/cheatsheet.js
+```
+
+Puede contener reglas, definiciones y fragmentos de sintaxis Java.
+
+## Modo multi-asignatura
+
+La app arranca con un selector de asignatura cuando no hay asignatura elegida. Cada curso esta registrado en:
+
+```text
+src/data/courses/index.js
+```
+
+Cada curso define:
+
+- `id`: identificador estable, por ejemplo `physics` o `poo`.
+- `name`: nombre completo.
+- `shortName`: nombre corto para la interfaz.
+- `resourceLabel`: nombre del apartado de formulas o chuleta.
+- `data`: preguntas, tarjetas, formulario/chuleta y temas.
+
+Los datos actuales estan repartidos asi:
+
+```text
+src/data/physics/index.js
+src/data/poo/index.js
+src/data/poo/coreConcepts.js
+src/data/poo/questions.js
+src/data/poo/theoryQuestions.js
+src/data/poo/studyCards.js
+src/data/poo/cheatsheet.js
+```
+
+Fisica mantiene los archivos historicos para no romper IDs ni progreso:
+
+```text
+src/data/questions.js
+src/data/extraQuestions.js
+src/data/theoryQuestions.js
+src/data/formulas.js
+src/data/studyCards.js
+```
+
+Para anadir una nueva asignatura:
+
+1. Crea una carpeta en `src/data/nueva-asignatura/`.
+2. Exporta `questions`, `topics`, `questionTypes`, `studyCards`, `studyTopics` y `formulas` o `cheatsheet`.
+3. Crea un `index.js` dentro de esa carpeta.
+4. Registra el curso en `src/data/courses/index.js`.
+
+El progreso esta separado por asignatura con claves nuevas:
+
+```text
+testProgress:physics
+studyProgress:physics
+tutorProgress:physics
+
+testProgress:poo
+studyProgress:poo
+tutorProgress:poo
+```
+
+Las claves antiguas de Fisica se migran automaticamente a `physics`:
+
+```text
+fisica-test-progress-v2
+fisica-study-progress-v1
+fisica-tutor-progress-v1
+```
+
+Esto evita perder estadisticas, falladas y tarjetas marcadas de Fisica.
 
 ## Modo estudio
 
@@ -292,13 +380,12 @@ La web incluye un boton flotante `Tutor IA`.
 
 Funciona sin API externa usando el material local:
 
-- `src/data/studyCards.js`
-- `src/data/formulas.js`
-- `src/data/questions.js`
-- `src/data/extraQuestions.js`
-- `src/data/theoryQuestions.js`
+- datos de la asignatura activa en `src/data/courses/index.js`,
+- tarjetas de esa asignatura,
+- formulario/chuleta de esa asignatura,
+- preguntas base y teoricas de esa asignatura.
 
-El tutor local busca tarjetas, formulas y preguntas relacionadas con tu duda. Responde corto, orientado a examen tipo test, con formula si procede, error tipico y una pregunta rapida.
+El tutor local busca solo dentro de la asignatura activa. Si estas en Fisica no mezcla POO, y si estas en POO no mezcla Fisica. Responde corto, orientado a examen tipo test, con formula o sintaxis si procede, error tipico y una pregunta rapida.
 
 Tambien hay soporte opcional para IA real mediante Supabase Edge Function:
 
@@ -315,17 +402,19 @@ Consulta `AI_TUTOR_SETUP.md` para la guia completa.
 
 El banco global combina:
 
-- preguntas base de `src/data/questions.js`,
-- preguntas extra de `src/data/extraQuestions.js`,
-- preguntas teoricas generadas desde tarjetas en `src/data/theoryQuestions.js`.
+- preguntas base,
+- preguntas extra o teoricas,
+- preguntas generadas desde tarjetas cuando existan.
 
-El archivo `src/data/allQuestions.js` une todo el banco. La interfaz permite filtrar por tipo:
+En Fisica, `src/data/allQuestions.js` une el banco historico. En POO, `src/data/poo/index.js` une `questions.js` y `theoryQuestions.js`. La interfaz permite filtrar por tipo:
 
 - calculo,
 - teoria,
 - formula,
 - unidades,
 - interpretacion,
+- sintaxis,
+- comparacion,
 - tarjetas.
 
 ## Funciones incluidas
@@ -362,6 +451,9 @@ El archivo `src/data/allQuestions.js` une todo el banco. La interfaz permite fil
 - `src/utils/localTutorEngine.js`: busqueda local en tarjetas, formulas y preguntas.
 - `src/utils/tutorStorage.js`: progreso de dudas y preguntas del tutor.
 - `src/utils/progressRepository.js`: capa comun para progreso.
+- `src/utils/courseStorage.js`: seleccion de asignatura y claves de progreso separadas.
+- `src/data/courses/index.js`: registro de asignaturas.
+- `src/data/poo/coreConcepts.js`: conceptos base de Programacion Orientada a Objetos.
 - `src/data/theoryQuestions.js`: preguntas teoricas generadas desde tarjetas.
 - `src/data/allQuestions.js`: banco global combinado.
 - `supabase/schema.sql`: tabla y politicas RLS.

@@ -1,6 +1,5 @@
 import { BookOpen, Clock, HelpCircle, Play, RotateCcw, Search, Zap } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { studyCards, studyTopics } from "../data/studyCards";
 import {
   clearStudyProgress,
   getStudyCardState,
@@ -30,7 +29,7 @@ const statusFilters = [
   { value: "sin-marcar", label: "Sin marcar" },
 ];
 
-export default function StudyMode({ initialView = "cards", onPracticeConcept }) {
+export default function StudyMode({ initialView = "cards", onPracticeConcept, cards = [], topics = [], course }) {
   const [topic, setTopic] = useState("all");
   const [priority, setPriority] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -38,6 +37,7 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
   const [view, setView] = useState(initialView);
   const [reviewCards, setReviewCards] = useState([]);
   const [progress, setProgress] = useState(() => loadStudyProgress());
+  const courseId = course?.id || "physics";
 
   useEffect(() => {
     setView(initialView);
@@ -46,6 +46,15 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
   useEffect(() => {
     saveStudyProgress(progress);
   }, [progress]);
+
+  useEffect(() => {
+    setTopic("all");
+    setPriority("all");
+    setStatusFilter("all");
+    setSearch("");
+    setReviewCards([]);
+    setProgress(loadStudyProgress());
+  }, [courseId]);
 
   useEffect(() => {
     function reloadProgress() {
@@ -58,7 +67,7 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
 
   const baseVisibleCards = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return studyCards.filter((card) => {
+    return cards.filter((card) => {
       const topicMatch = topic === "all" || card.tema === topic;
       const priorityMatch = priority === "all" || card.prioridad === priority;
       const haystack = [
@@ -68,13 +77,13 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
         card.explicacionCorta,
         card.formula,
         card.errorTipico,
-        card.etiquetas.join(" "),
+        (card.etiquetas || []).join(" "),
       ]
         .join(" ")
         .toLowerCase();
       return topicMatch && priorityMatch && (!query || haystack.includes(query));
     });
-  }, [topic, priority, search]);
+  }, [cards, topic, priority, search]);
 
   const visibleCards = useMemo(
     () =>
@@ -136,14 +145,14 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
   }
 
   if (view === "last-minute") {
-    return <ExamLastMinute cards={studyCards} onBack={() => setView("cards")} onPractice={onPracticeConcept} />;
+    return <ExamLastMinute cards={cards} onBack={() => setView("cards")} onPractice={onPracticeConcept} />;
   }
 
   if (view === "ask") {
     return (
       <CardQuizMode
-        cards={studyCards}
-        topics={studyTopics}
+        cards={cards}
+        topics={topics}
         onBack={() => setView("cards")}
         onMark={mark}
       />
@@ -156,7 +165,7 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
         <div>
           <p className="eyebrow">Modo estudio</p>
           <h2>Estudiar rapido</h2>
-          <p>Tarjetas cortas para reconocer conceptos, formulas y trampas de test.</p>
+          <p>{course?.studyDescription || "Tarjetas cortas para reconocer conceptos, formulas y trampas de test."}</p>
         </div>
         <div className="study-hero-actions">
           <button className="primary" type="button" onClick={() => startReview(visibleCards)} disabled={!visibleCards.length}>
@@ -185,7 +194,7 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
               <span>Tema</span>
               <select value={topic} onChange={(event) => setTopic(event.target.value)}>
                 <option value="all">Todos</option>
-                {studyTopics.map((item) => (
+                {topics.map((item) => (
                   <option key={item} value={item}>
                     {item}
                   </option>
@@ -205,7 +214,7 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
             <label className="field search-field">
               <span>Buscar concepto</span>
               <Search size={18} />
-              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Doppler, Carnot, Gauss..." />
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={course?.searchPlaceholder || "Doppler, Carnot, Gauss..."} />
             </label>
           </div>
 
@@ -229,7 +238,7 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
             <RotateCcw size={18} />
             <span>{needsReviewCards.length} dudosas/no sabidas</span>
             <Zap size={18} />
-            <span>{studyCards.filter((card) => card.prioridad === "alta").length} de prioridad alta</span>
+            <span>{cards.filter((card) => card.prioridad === "alta").length} de prioridad alta</span>
           </div>
 
           <div className="actions-row">
@@ -260,7 +269,7 @@ export default function StudyMode({ initialView = "cards", onPracticeConcept }) 
           </div>
         </div>
 
-        <StudyProgress cards={studyCards} progress={progress} onReset={resetProgress} />
+        <StudyProgress cards={cards} progress={progress} onReset={resetProgress} />
       </div>
     </section>
   );

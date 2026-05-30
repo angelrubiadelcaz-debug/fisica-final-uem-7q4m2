@@ -1,4 +1,8 @@
-export const TUTOR_KEY = "fisica-tutor-progress-v1";
+import { courseScopedKey, getActiveCourseId, migrateLegacyKey } from "./courseStorage";
+
+export const LEGACY_TUTOR_KEY = "fisica-tutor-progress-v1";
+export const TUTOR_PREFIX = "tutorProgress";
+export const TUTOR_KEY = courseScopedKey(TUTOR_PREFIX);
 
 export const initialTutorProgress = {
   doubts: [],
@@ -30,7 +34,9 @@ function normalizeProgress(progress) {
 export function loadTutorProgress() {
   if (!canUseStorage()) return initialTutorProgress;
   try {
-    const stored = window.localStorage.getItem(TUTOR_KEY);
+    const key = courseScopedKey(TUTOR_PREFIX);
+    migrateLegacyKey(LEGACY_TUTOR_KEY, key, getActiveCourseId());
+    const stored = window.localStorage.getItem(key);
     return stored ? normalizeProgress(JSON.parse(stored)) : initialTutorProgress;
   } catch {
     return initialTutorProgress;
@@ -39,13 +45,13 @@ export function loadTutorProgress() {
 
 export function saveTutorProgress(progress) {
   if (!canUseStorage()) return;
-  window.localStorage.setItem(TUTOR_KEY, JSON.stringify(normalizeProgress(progress)));
+  window.localStorage.setItem(courseScopedKey(TUTOR_PREFIX), JSON.stringify(normalizeProgress(progress)));
   notifyProgressChanged();
 }
 
 export function clearTutorProgress() {
   if (!canUseStorage()) return;
-  window.localStorage.removeItem(TUTOR_KEY);
+  window.localStorage.removeItem(courseScopedKey(TUTOR_PREFIX));
   notifyProgressChanged();
 }
 

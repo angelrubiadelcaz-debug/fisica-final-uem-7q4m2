@@ -79,8 +79,11 @@ export function questionTypeLabel(value) {
     formula: "Formula",
     unidades: "Unidades",
     "interpretacion fisica": "Interpretacion",
+    interpretacion: "Interpretacion",
     tarjetas: "Tarjetas",
     "caso conceptual": "Conceptual",
     "trampa tipica": "Trampas",
+    sintaxis: "Sintaxis",
+    comparacion: "Comparacion",
   }[value] || value;
 }

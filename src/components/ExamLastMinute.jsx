@@ -28,7 +28,7 @@ export default function ExamLastMinute({ cards, onBack, onPractice }) {
 
       <div className="last-minute-grid">
         {Object.entries(groups).map(([topic, topicCards]) => {
-          const relatedIds = [...new Set(topicCards.flatMap((card) => card.relatedQuestionIds))];
+          const relatedIds = [...new Set(topicCards.flatMap((card) => card.relatedQuestionIds || []))];
           return (
             <article className="last-minute-block" key={topic}>
               <div className="last-minute-title">

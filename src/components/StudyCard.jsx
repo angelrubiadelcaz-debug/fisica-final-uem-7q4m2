@@ -121,7 +121,7 @@ export default function StudyCard({ card, progress, onMark, onPractice }) {
           <XCircle size={18} />
           No me lo se
         </button>
-        <button type="button" onClick={() => onPractice(card)} disabled={!card.relatedQuestionIds.length}>
+        <button type="button" onClick={() => onPractice(card)} disabled={!(card.relatedQuestionIds || []).length}>
           <BookOpen size={18} />
           Hacer preguntas de este concepto
         </button>
