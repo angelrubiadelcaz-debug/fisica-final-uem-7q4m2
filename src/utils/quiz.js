@@ -85,5 +85,6 @@ export function questionTypeLabel(value) {
     "trampa tipica": "Trampas",
     sintaxis: "Sintaxis",
     comparacion: "Comparacion",
+    "guia final": "Guia final",
   }[value] || value;
 }

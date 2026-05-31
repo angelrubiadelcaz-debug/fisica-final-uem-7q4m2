@@ -13,10 +13,11 @@ export const courses = [
     searchPlaceholder: "Gauss, Carnot, unidad...",
     studyDescription: "Tarjetas cortas para reconocer conceptos, formulas y trampas de test.",
     setupSummary: [
+      "Bloque prioritario con todas las preguntas de GUIA_ESTUDIO_EXAMEN.pdf",
       "Enunciados de una frase o calculo directo",
       "Distractores por unidades, signos y proporcionalidad",
       "Mas teoria e interpretacion que calculo largo",
-      "Temas 4-6 reforzados para el examen final",
+      "Temas 4-6 y repaso T1-T3 reforzados para el examen final",
     ],
     tutor: {
       title: "Dudas de Fisica",

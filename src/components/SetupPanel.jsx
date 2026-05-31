@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, Brain, ClipboardCheck, Clock, Filter, Play, RotateCcw, Search, Settings, Trash2 } from "lucide-react";
+import { BarChart3, BookOpen, Brain, ClipboardCheck, Clock, Filter, Play, RotateCcw, Search, Settings, Star, Trash2 } from "lucide-react";
 import { difficultyLabel, questionTypeLabel } from "../utils/quiz";
 
 export default function SetupPanel({
@@ -22,6 +22,7 @@ export default function SetupPanel({
   onTheoryModeChange,
   onStart,
   onStartFinal,
+  onStartImportant,
   onPracticeFailed,
   onGoStudy,
   onGoLastMinute,
@@ -29,6 +30,7 @@ export default function SetupPanel({
   onGoStats,
   onGoSettings,
   course,
+  importantCount = 0,
 }) {
   const countOptions = [10, 20, 30, 40, 60, 100, maxCount]
     .filter((value, index, list) => value > 0 && value <= maxCount && list.indexOf(value) === index);
@@ -42,6 +44,13 @@ export default function SetupPanel({
           <strong>Empezar test</strong>
           <span>Preguntas tipo examen con correccion final.</span>
         </button>
+        {importantCount > 0 && (
+          <button className="quick-start-card important-card" type="button" onClick={onStartImportant}>
+            <Star size={22} />
+            <strong>Guia final PDF</strong>
+            <span>{importantCount} preguntas prioritarias: estas son las que mas conviene dominar.</span>
+          </button>
+        )}
         <button className="quick-start-card" type="button" onClick={onGoStudy}>
           <Brain size={22} />
           <strong>Estudiar rapido</strong>
@@ -134,7 +143,7 @@ export default function SetupPanel({
         </div>
 
         <div className="segmented type-segmented" aria-label="Tipo de pregunta">
-          {["all", ...questionTypes.filter((value) => ["calculo corto", "teoria", "formula", "unidades", "interpretacion fisica", "interpretacion", "sintaxis", "comparacion", "trampa tipica", "tarjetas"].includes(value))].map((value) => (
+          {["all", ...questionTypes.filter((value) => ["guia final", "calculo corto", "teoria", "formula", "unidades", "interpretacion fisica", "interpretacion", "sintaxis", "comparacion", "trampa tipica", "tarjetas"].includes(value))].map((value) => (
             <button
               key={value}
               className={questionType === value ? "active" : ""}

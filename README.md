@@ -402,12 +402,16 @@ Consulta `AI_TUTOR_SETUP.md` para la guia completa.
 
 El banco global combina:
 
+- preguntas prioritarias de `GUIA_ESTUDIO_EXAMEN.pdf`,
 - preguntas base,
 - preguntas extra o teoricas,
 - preguntas generadas desde tarjetas cuando existan.
 
-En Fisica, `src/data/allQuestions.js` une el banco historico. En POO, `src/data/poo/index.js` une `questions.js` y `theoryQuestions.js`. La interfaz permite filtrar por tipo:
+En Fisica, `src/data/allQuestions.js` une el banco historico con `src/data/physics/guiaFinalQuestions.js`. Estas preguntas aparecen al principio del banco, tienen `prioridad: "maxima"` y se pueden practicar desde el boton `Guia final PDF` o filtrando por tipo `Guia final`.
 
+En POO, `src/data/poo/index.js` une `questions.js` y `theoryQuestions.js`. La interfaz permite filtrar por tipo:
+
+- guia final,
 - calculo,
 - teoria,
 - formula,
@@ -453,6 +457,7 @@ En Fisica, `src/data/allQuestions.js` une el banco historico. En POO, `src/data/
 - `src/utils/progressRepository.js`: capa comun para progreso.
 - `src/utils/courseStorage.js`: seleccion de asignatura y claves de progreso separadas.
 - `src/data/courses/index.js`: registro de asignaturas.
+- `src/data/physics/guiaFinalQuestions.js`: preguntas prioritarias convertidas desde `GUIA_ESTUDIO_EXAMEN.pdf`.
 - `src/data/poo/coreConcepts.js`: conceptos base de Programacion Orientada a Objetos.
 - `src/data/theoryQuestions.js`: preguntas teoricas generadas desde tarjetas.
 - `src/data/allQuestions.js`: banco global combinado.

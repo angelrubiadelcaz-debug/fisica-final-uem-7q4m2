@@ -150,6 +150,10 @@ export default function App() {
     () => questions.filter((question) => (progress.failedIds || []).includes(question.id)),
     [questions, progress.failedIds],
   );
+  const importantQuestions = useMemo(
+    () => questions.filter((question) => question.prioridad === "maxima" || question.tags?.includes("examen-seguro")),
+    [questions],
+  );
   const maxCount = pool.length;
   const testActive = quizQuestions.length > 0 && !result;
 
@@ -328,6 +332,16 @@ export default function App() {
     setSearch("");
     setCount(Math.min(count, fullPool.length));
     beginQuiz(pickQuestions(fullPool, Math.min(count, fullPool.length)), "examen");
+  }
+
+  function startImportantGuide() {
+    if (!importantQuestions.length) return;
+    setSelectedTopics(["all"]);
+    setDifficulty("all");
+    setQuestionType("guia final");
+    setSearch("");
+    setCount(Math.min(count, importantQuestions.length));
+    beginQuiz(pickQuestions(importantQuestions, Math.min(count, importantQuestions.length)), "repaso");
   }
 
   function practiceFailed() {
@@ -555,6 +569,7 @@ export default function App() {
             onTheoryModeChange={setTheoryMode}
             onStart={startQuiz}
             onStartFinal={startFinalSimulation}
+            onStartImportant={startImportantGuide}
             onPracticeFailed={practiceFailed}
             onGoStudy={() => goStudy("cards")}
             onGoLastMinute={() => goStudy("last-minute")}
@@ -562,6 +577,7 @@ export default function App() {
             onGoStats={() => setSection("stats")}
             onGoSettings={() => setSection("settings")}
             course={course}
+            importantCount={importantQuestions.length}
           />
           <section className="coverage-strip">
             <div>

@@ -267,6 +267,15 @@ button.primary:hover:not(:disabled) {
   background: #eef5ff;
 }
 
+.quick-start-card.important-card {
+  border-color: #9ad7bc;
+  background: #effaf4;
+}
+
+.quick-start-card.important-card svg {
+  color: #15803d;
+}
+
 .code-card-snippet {
   margin: 0;
   padding: 12px;
