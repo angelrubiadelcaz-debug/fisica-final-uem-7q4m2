@@ -60,7 +60,14 @@ export default function QuestionCard({
             <span>{question.tema}</span>
           </div>
           <p className="subtopic">{question.subtema}</p>
-          <MathText as="h2">{question.enunciado}</MathText>
+          {question.statementCard ? (
+            <div className="statement-card">
+              <span>{question.statementCard.label || "Enunciado"}</span>
+              <MathText as="h2">{question.enunciado}</MathText>
+            </div>
+          ) : (
+            <MathText as="h2">{question.enunciado}</MathText>
+          )}
 
           <div className="options-list">
             {question.opciones.map((option, index) => {

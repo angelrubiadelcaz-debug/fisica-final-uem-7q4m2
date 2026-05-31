@@ -1140,6 +1140,29 @@ const rawStudyCards = [
     relatedTerms: ["Bandas", "Semiconductores", "gap"],
   }),
   c({
+    id: "semiconductores-huecos-teatro",
+    tema: "Semiconductores y fotones",
+    subtema: "Huecos",
+    temaBanco: T5,
+    titulo: "Conduccion por electrones y huecos",
+    prioridad: "alta",
+    importancia: "Seguro examen",
+    explicacionCorta: "Un hueco es una ausencia de electron que se comporta como carga positiva movil efectiva.",
+    formula: "",
+    variables: [
+      "Electron: portador real de carga negativa",
+      "Hueco: ausencia de electron en una banda casi llena",
+      "Carga efectiva: el hueco se modela como positiva",
+    ],
+    cuandoSeUsa: "Cuando preguntan por semiconductores tipo P, portadores mayoritarios o la analogia del teatro.",
+    errorTipico: "Pensar que el hueco es un proton real que se mueve por el cristal.",
+    miniEjemplo: "Si electrones van ocupando asientos libres, el asiento libre parece desplazarse en sentido contrario.",
+    preguntaActiva: "En la analogia del teatro, que representa el hueco?",
+    respuestaActiva: "Un asiento libre que se comporta como una carga positiva movil efectiva.",
+    etiquetas: ["semiconductores", "huecos", "tipo p", "teatro", "seguro examen"],
+    relatedTerms: ["Semiconductores", "huecos", "tipo P", "portadores"],
+  }),
+  c({
     id: "diodo-pn",
     tema: "Semiconductores y fotones",
     subtema: "Diodos",
@@ -1688,7 +1711,7 @@ const conciseExplanations = {
   "periodo-frecuencia-omega": "Periodo y frecuencia son magnitudes inversas; la frecuencia angular expresa el ritmo en radianes.",
   "periodo-muelle": "En un muelle ideal, el periodo depende de la masa y de la constante elastica.",
   "energia-mas": "En MAS ideal, la energia pasa de cinetica a potencial, pero la energia total se conserva.",
-  "ondas-clasificacion-seguro-examen": "Una onda puede clasificarse por varios criterios a la vez: medio, perturbacion, periodicidad, frente y dimension.",
+  "ondas-clasificacion-seguro-examen": "Una onda puede tener varias etiquetas a la vez: por medio, vibracion, periodicidad, frente y dimension.",
   "onda-v-lambda-f": "En una onda periodica, velocidad, longitud de onda y frecuencia estan relacionadas por el medio.",
   "onda-velocidad-medio": "La perturbacion se propaga, pero las particulas del medio oscilan alrededor del equilibrio.",
   "onda-esferica-intensidad": "En una onda esferica, la misma potencia se reparte sobre superficies cada vez mayores.",
@@ -1710,6 +1733,7 @@ const conciseExplanations = {
   "polarizacion-malus": "La polarizacion describe la direccion de oscilacion del campo electrico de la luz.",
   "fotoelectrico-umbral": "En el efecto fotoelectrico importa la frecuencia del foton, no solo la intensidad.",
   "bandas-semiconductores": "La separacion entre bandas permite distinguir metales, semiconductores y aislantes.",
+  "semiconductores-huecos-teatro": "Un hueco no es una particula material nueva: es una ausencia de electron que se mueve como carga positiva efectiva.",
   "diodo-pn": "Una union PN conduce mejor en polarizacion directa que en polarizacion inversa.",
   "transistor-interruptor": "Un transistor puede funcionar como interruptor al pasar entre corte y saturacion.",
   "led-fotodetector-gap": "En semiconductores, la energia del foton se compara con el gap de banda.",
@@ -1741,12 +1765,14 @@ const detailedExplanations = {
   "ondas-clasificacion-seguro-examen": {
     explanation: [
       "Las ondas se pueden clasificar usando varios criterios. No son clasificaciones excluyentes: una misma onda puede pertenecer a varias categorias al mismo tiempo.",
-      "Por ejemplo, una onda en una cuerda puede ser mecanica porque necesita cuerda, transversal porque la cuerda se mueve perpendicularmente al avance, periodica si se repite y unidimensional si se propaga a lo largo de una linea.",
+      "Segun el medio, pueden ser mecanicas, electromagneticas o gravitacionales. Las mecanicas necesitan un medio material; las electromagneticas pueden viajar por el vacio; las gravitacionales son perturbaciones del espacio-tiempo.",
+      "Segun la direccion de la perturbacion, pueden ser longitudinales o transversales. En una longitudinal la vibracion va paralela al avance; en una transversal va perpendicular.",
+      "Tambien se clasifican por periodicidad, frente de onda y dimension de propagacion. Estas etiquetas ayudan a leer rapidamente el tipo de fenomeno que describe el enunciado.",
     ],
     physicalMeaning:
-      "Clasificar una onda ayuda a saber que propiedades esperar: si necesita medio, como vibra el medio, como se reparte la energia y que formulas o ideas conviene usar.",
+      "Clasificar una onda ayuda a saber si necesita medio, como vibra, como reparte energia y que tipo de razonamiento conviene usar en una pregunta tipo test.",
     variables: [
-      "Medio material: permite distinguir ondas mecanicas de electromagneticas.",
+      "Medio: mecanicas, electromagneticas o gravitacionales.",
       "Direccion de perturbacion: compara la vibracion con la direccion de propagacion.",
       "Periodicidad: indica si la perturbacion se repite o es un pulso aislado.",
       "Frente de onda: describe la forma geometrica de los puntos que oscilan en fase.",
@@ -1761,11 +1787,38 @@ const detailedExplanations = {
     recognition:
       "Si el enunciado pide identificar el tipo de onda, separa la pregunta por criterios: medio, direccion de vibracion, periodicidad, frente y dimension.",
     miniExample:
-      "El sonido en el aire es mecanico y longitudinal; la luz es electromagnetica y transversal; una onda en una cuerda es mecanica y transversal.",
+      "El sonido en el aire es mecanico y longitudinal. La luz es electromagnetica y transversal. Una cuerda de guitarra produce una onda mecanica transversal. Las ondas en un estanque son mecanicas y se propagan sobre una superficie. Un latigo genera un pulso mecanico. Las ondas gravitacionales no son mecanicas ni electromagneticas.",
     commonMistake:
       "Responder con una sola clasificacion cuando el enunciado pide varias. Por ejemplo, decir solo que el sonido es longitudinal y olvidar que tambien es mecanico.",
     examSummary:
-      "Resumen: por medio, mecanicas/electromagneticas; por perturbacion, longitudinales/transversales; por periodicidad, periodicas/pulsos; por frente, planas/circulares/esfericas; por propagacion, 1D/2D/3D.",
+      "Resumen: por medio, mecanicas/electromagneticas/gravitacionales; por perturbacion, longitudinales/transversales; por periodicidad, periodicas/pulsos; por frente, planas/circulares/esfericas; por propagacion, 1D/2D/3D.",
+  },
+  "semiconductores-huecos-teatro": {
+    explanation: [
+      "En un semiconductor, un hueco representa la ausencia de un electron en una banda casi llena.",
+      "Aunque el hueco no sea una particula material como un proton, se comporta en los calculos como una carga positiva movil efectiva.",
+      "La analogia del teatro ayuda a verlo: si una fila esta casi llena y varias personas se van moviendo hacia un asiento libre, el asiento libre parece desplazarse en sentido contrario al movimiento de las personas.",
+    ],
+    physicalMeaning:
+      "El modelo de huecos permite describir la conduccion en semiconductores tipo P sin seguir electron por electron. El hueco resume el movimiento colectivo de electrones en una banda casi llena.",
+    variables: [
+      "Electron: portador real con carga negativa.",
+      "Hueco: ausencia de electron que se modela como carga positiva efectiva.",
+      "Tipo P: semiconductor donde los huecos son portadores mayoritarios.",
+    ],
+    whenToUse: [
+      "Cuando el enunciado habla de semiconductores tipo P.",
+      "Cuando pregunta por portadores mayoritarios.",
+      "Cuando usa la analogia de asientos libres, huecos o ausencia de electrones.",
+    ],
+    recognition:
+      "Si aparece un semiconductor tipo P o una ausencia de electron que parece moverse, piensa en huecos como portadores positivos efectivos.",
+    miniExample:
+      "Si los electrones saltan hacia la derecha ocupando huecos, el hueco aparente se desplaza hacia la izquierda.",
+    commonMistake:
+      "Pensar que un hueco es un proton que se mueve por el cristal. El hueco es una forma de modelar una ausencia de electron.",
+    examSummary:
+      "En tipo test, hueco significa ausencia de electron con comportamiento de carga positiva efectiva. Es especialmente importante en semiconductores tipo P.",
   },
   "calor-latente": {
     explanation: [

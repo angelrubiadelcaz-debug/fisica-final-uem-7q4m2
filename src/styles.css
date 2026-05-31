@@ -600,6 +600,37 @@ button.primary:hover:not(:disabled) {
   font-weight: 900;
 }
 
+.statement-card {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 16px;
+  border: 1px solid #d7e2f2;
+  border-radius: 8px;
+  padding: 14px;
+  background: #f8fbff;
+}
+
+.statement-card.compact {
+  margin: 10px 0;
+  padding: 12px;
+}
+
+.statement-card > span {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 3px 8px;
+  background: #e8f0ff;
+  color: var(--primary-dark);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.statement-card h2,
+.statement-card h3 {
+  margin: 0;
+}
+
 .feedback {
   display: flex;
   gap: 10px;

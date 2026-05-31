@@ -340,12 +340,13 @@ export default function App() {
 
   function startSeguroExam() {
     if (!seguroExamQuestions.length) return;
+    const seguroCount = seguroExamQuestions.length;
     setSelectedTopics(["all"]);
     setDifficulty("all");
     setQuestionType("seguro examen");
     setSearch("");
-    setCount(Math.min(count, seguroExamQuestions.length));
-    beginQuiz(pickQuestions(seguroExamQuestions, Math.min(count, seguroExamQuestions.length)), "repaso");
+    setCount(seguroCount);
+    beginQuiz(pickQuestions(seguroExamQuestions, seguroCount), "repaso");
   }
 
   function startImportantGuide() {

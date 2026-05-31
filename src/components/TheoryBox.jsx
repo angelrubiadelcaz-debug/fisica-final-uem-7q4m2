@@ -42,6 +42,12 @@ export default function TheoryBox({ question, mode, theoryMode }) {
               <dt>Dificultad</dt>
               <dd>{question.dificultad}</dd>
             </div>
+            {question.sourceLabel && (
+              <div>
+                <dt>Fuente</dt>
+                <dd>{question.sourceLabel}</dd>
+              </div>
+            )}
           </dl>
         </div>
       ) : (

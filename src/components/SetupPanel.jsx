@@ -50,7 +50,7 @@ export default function SetupPanel({
           <button className="quick-start-card seguro-card" type="button" onClick={onStartSeguro}>
             <Star size={22} />
             <strong>Seguro examen</strong>
-            <span>{seguroCount} preguntas rapidas de MAS y ondas con solucion paso a paso.</span>
+            <span>{seguroCount} preguntas muy importantes con solucion paso a paso.</span>
           </button>
         )}
         {importantCount > 0 && (

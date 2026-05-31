@@ -116,7 +116,14 @@ export default function ResultsPanel({ result, onRetry, onPracticeFailed, onNewQ
               <span>Pregunta {index + 1}</span>
               <strong className={isCorrect ? "ok-text" : "ko-text"}>{isCorrect ? "Correcta" : "Incorrecta"}</strong>
             </div>
-            <MathText as="h3">{question.enunciado}</MathText>
+            {question.statementCard ? (
+              <div className="statement-card compact">
+                <span>{question.statementCard.label || "Enunciado"}</span>
+                <MathText as="h3">{question.enunciado}</MathText>
+              </div>
+            ) : (
+              <MathText as="h3">{question.enunciado}</MathText>
+            )}
             <div className="review-options">
               {question.opciones.map((option, optionIndex) => {
                 const isAnswer = optionIndex === question.correcta;
