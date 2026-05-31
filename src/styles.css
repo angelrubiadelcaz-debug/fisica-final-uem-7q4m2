@@ -276,6 +276,15 @@ button.primary:hover:not(:disabled) {
   color: #15803d;
 }
 
+.quick-start-card.seguro-card {
+  border-color: #f4c56f;
+  background: #fff8e8;
+}
+
+.quick-start-card.seguro-card svg {
+  color: #b45309;
+}
+
 .code-card-snippet {
   margin: 0;
   padding: 12px;
@@ -601,6 +610,52 @@ button.primary:hover:not(:disabled) {
 
 .feedback p {
   margin: 5px 0 8px;
+}
+
+.question-solution-stack {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.solution-box,
+.solution-mistake {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #d9e4f2;
+  border-radius: 8px;
+  padding: 12px;
+  background: #ffffff;
+}
+
+.solution-box strong,
+.solution-mistake strong {
+  color: #1e3a8a;
+}
+
+.solution-box p,
+.solution-mistake p {
+  margin: 0;
+}
+
+.importance-pill {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #f0c36d;
+  border-radius: 999px;
+  padding: 4px 9px;
+  background: #fff7d6;
+  color: #854d0e;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.importance-pill.compact {
+  margin-top: 6px;
+  padding: 3px 8px;
+  font-size: 0.7rem;
 }
 
 .correct-box {

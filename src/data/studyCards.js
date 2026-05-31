@@ -737,6 +737,31 @@ const rawStudyCards = [
     relatedTerms: ["Energia MAS", "Velocidad maxima MAS"],
   }),
   c({
+    id: "ondas-clasificacion-seguro-examen",
+    tema: "Ondas",
+    subtema: "Clasificacion de ondas",
+    temaBanco: T4,
+    titulo: "Clasificacion de las ondas",
+    prioridad: "alta",
+    importancia: "Dicho en clase / Seguro examen",
+    explicacionCorta: "Una misma onda puede clasificarse por medio, perturbacion, periodicidad, frente y dimension de propagacion.",
+    formula: "",
+    variables: [
+      "Medio: mecanicas o electromagneticas",
+      "Perturbacion: longitudinales o transversales",
+      "Periodicidad: periodicas o pulsos",
+      "Frente: planas, circulares o esfericas",
+      "Propagacion: unidimensional, bidimensional o tridimensional",
+    ],
+    cuandoSeUsa: "Cuando una pregunta pide identificar el tipo de onda o comparar sonido, luz, cuerda, agua y ondas sismicas.",
+    errorTipico: "Pensar que cada onda solo puede tener una etiqueta. Una onda puede ser mecanica, transversal, periodica y unidimensional a la vez.",
+    miniEjemplo: "El sonido en el aire es mecanico, longitudinal y normalmente tridimensional.",
+    preguntaActiva: "El sonido en el aire es una onda mecanica o electromagnetica?",
+    respuestaActiva: "Mecanica, porque necesita un medio material.",
+    etiquetas: ["ondas", "clasificacion", "mecanicas", "electromagneticas", "longitudinales", "transversales", "seguro examen"],
+    relatedTerms: ["Clasificacion de ondas", "mecanicas", "electromagneticas", "longitudinales", "transversales"],
+  }),
+  c({
     id: "onda-v-lambda-f",
     tema: "Ondas",
     subtema: "Magnitudes de una onda",
@@ -1663,6 +1688,7 @@ const conciseExplanations = {
   "periodo-frecuencia-omega": "Periodo y frecuencia son magnitudes inversas; la frecuencia angular expresa el ritmo en radianes.",
   "periodo-muelle": "En un muelle ideal, el periodo depende de la masa y de la constante elastica.",
   "energia-mas": "En MAS ideal, la energia pasa de cinetica a potencial, pero la energia total se conserva.",
+  "ondas-clasificacion-seguro-examen": "Una onda puede clasificarse por varios criterios a la vez: medio, perturbacion, periodicidad, frente y dimension.",
   "onda-v-lambda-f": "En una onda periodica, velocidad, longitud de onda y frecuencia estan relacionadas por el medio.",
   "onda-velocidad-medio": "La perturbacion se propaga, pero las particulas del medio oscilan alrededor del equilibrio.",
   "onda-esferica-intensidad": "En una onda esferica, la misma potencia se reparte sobre superficies cada vez mayores.",
@@ -1712,6 +1738,35 @@ const conciseExplanations = {
 };
 
 const detailedExplanations = {
+  "ondas-clasificacion-seguro-examen": {
+    explanation: [
+      "Las ondas se pueden clasificar usando varios criterios. No son clasificaciones excluyentes: una misma onda puede pertenecer a varias categorias al mismo tiempo.",
+      "Por ejemplo, una onda en una cuerda puede ser mecanica porque necesita cuerda, transversal porque la cuerda se mueve perpendicularmente al avance, periodica si se repite y unidimensional si se propaga a lo largo de una linea.",
+    ],
+    physicalMeaning:
+      "Clasificar una onda ayuda a saber que propiedades esperar: si necesita medio, como vibra el medio, como se reparte la energia y que formulas o ideas conviene usar.",
+    variables: [
+      "Medio material: permite distinguir ondas mecanicas de electromagneticas.",
+      "Direccion de perturbacion: compara la vibracion con la direccion de propagacion.",
+      "Periodicidad: indica si la perturbacion se repite o es un pulso aislado.",
+      "Frente de onda: describe la forma geometrica de los puntos que oscilan en fase.",
+      "Dimension de propagacion: indica si avanza en una linea, en una superficie o en el espacio.",
+    ],
+    whenToUse: [
+      "Cuando aparecen ejemplos como sonido, luz, ondas en cuerda, olas, radio, rayos X u ondas sismicas.",
+      "Cuando preguntan si una onda puede propagarse en el vacio.",
+      "Cuando comparan longitudinal y transversal.",
+      "Cuando el enunciado habla de frente plano, circular o esferico.",
+    ],
+    recognition:
+      "Si el enunciado pide identificar el tipo de onda, separa la pregunta por criterios: medio, direccion de vibracion, periodicidad, frente y dimension.",
+    miniExample:
+      "El sonido en el aire es mecanico y longitudinal; la luz es electromagnetica y transversal; una onda en una cuerda es mecanica y transversal.",
+    commonMistake:
+      "Responder con una sola clasificacion cuando el enunciado pide varias. Por ejemplo, decir solo que el sonido es longitudinal y olvidar que tambien es mecanico.",
+    examSummary:
+      "Resumen: por medio, mecanicas/electromagneticas; por perturbacion, longitudinales/transversales; por periodicidad, periodicas/pulsos; por frente, planas/circulares/esfericas; por propagacion, 1D/2D/3D.",
+  },
   "calor-latente": {
     explanation: [
       "El calor latente es el calor que una sustancia absorbe o cede mientras cambia de fase.",

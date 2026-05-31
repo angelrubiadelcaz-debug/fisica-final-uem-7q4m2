@@ -57,6 +57,7 @@ export default function StudyCard({ card, progress, onMark, onPractice }) {
         <div>
           <span className="formula-topic">{card.tema}</span>
           <h3>{card.titulo}</h3>
+          {card.importancia && <span className="importance-pill compact">{card.importancia}</span>}
         </div>
         <span className={`study-status status-${state.status}`}>{statusLabel[state.status]}</span>
       </div>

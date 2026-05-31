@@ -1,6 +1,33 @@
 import { BarChart3, CheckCircle2, RotateCcw, XCircle } from "lucide-react";
 import MathText from "./MathText";
 
+function SolutionDetails({ question }) {
+  const steps = question.solucion || question.solucionPasoAPaso || [];
+  const normalizedSteps = Array.isArray(steps) ? steps : [steps];
+
+  if (!normalizedSteps.length && !question.trampaTipica && !question.importancia) return null;
+
+  return (
+    <div className="question-solution-stack">
+      {question.importancia && <span className="importance-pill">{question.importancia}</span>}
+      {normalizedSteps.length > 0 && (
+        <section className="solution-box">
+          <strong>Solucion paso a paso</strong>
+          {normalizedSteps.map((step) => (
+            <MathText as="p" key={step}>{step}</MathText>
+          ))}
+        </section>
+      )}
+      {question.trampaTipica && (
+        <section className="mistake-box solution-mistake">
+          <strong>Trampa tipica</strong>
+          <MathText as="p">{question.trampaTipica}</MathText>
+        </section>
+      )}
+    </div>
+  );
+}
+
 export default function ResultsPanel({ result, onRetry, onPracticeFailed, onNewQuiz }) {
   const topicFailures = Object.entries(result.wrongByTopic).sort((a, b) => b[1] - a[1]);
   const difficultyFailures = Object.entries(result.wrongByDifficulty).sort((a, b) => b[1] - a[1]);
@@ -107,6 +134,7 @@ export default function ResultsPanel({ result, onRetry, onPracticeFailed, onNewQ
             </div>
             <MathText as="p" className="explanation">{question.explicacion}</MathText>
             {question.formula && <MathText as="div" block className="math-card-formula">{question.formula}</MathText>}
+            <SolutionDetails question={question} />
           </article>
         ))}
       </div>

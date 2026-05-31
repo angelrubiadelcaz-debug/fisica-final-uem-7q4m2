@@ -150,8 +150,12 @@ export default function App() {
     () => questions.filter((question) => (progress.failedIds || []).includes(question.id)),
     [questions, progress.failedIds],
   );
-  const importantQuestions = useMemo(
-    () => questions.filter((question) => question.prioridad === "maxima" || question.tags?.includes("examen-seguro")),
+  const seguroExamQuestions = useMemo(
+    () => questions.filter((question) => question.tipo === "seguro examen" || question.tags?.includes("seguro-examen")),
+    [questions],
+  );
+  const guideFinalQuestions = useMemo(
+    () => questions.filter((question) => question.tipo === "guia final" || question.source === "GUIA_ESTUDIO_EXAMEN.pdf"),
     [questions],
   );
   const maxCount = pool.length;
@@ -334,14 +338,24 @@ export default function App() {
     beginQuiz(pickQuestions(fullPool, Math.min(count, fullPool.length)), "examen");
   }
 
+  function startSeguroExam() {
+    if (!seguroExamQuestions.length) return;
+    setSelectedTopics(["all"]);
+    setDifficulty("all");
+    setQuestionType("seguro examen");
+    setSearch("");
+    setCount(Math.min(count, seguroExamQuestions.length));
+    beginQuiz(pickQuestions(seguroExamQuestions, Math.min(count, seguroExamQuestions.length)), "repaso");
+  }
+
   function startImportantGuide() {
-    if (!importantQuestions.length) return;
+    if (!guideFinalQuestions.length) return;
     setSelectedTopics(["all"]);
     setDifficulty("all");
     setQuestionType("guia final");
     setSearch("");
-    setCount(Math.min(count, importantQuestions.length));
-    beginQuiz(pickQuestions(importantQuestions, Math.min(count, importantQuestions.length)), "repaso");
+    setCount(Math.min(count, guideFinalQuestions.length));
+    beginQuiz(pickQuestions(guideFinalQuestions, Math.min(count, guideFinalQuestions.length)), "repaso");
   }
 
   function practiceFailed() {
@@ -569,6 +583,7 @@ export default function App() {
             onTheoryModeChange={setTheoryMode}
             onStart={startQuiz}
             onStartFinal={startFinalSimulation}
+            onStartSeguro={startSeguroExam}
             onStartImportant={startImportantGuide}
             onPracticeFailed={practiceFailed}
             onGoStudy={() => goStudy("cards")}
@@ -577,7 +592,8 @@ export default function App() {
             onGoStats={() => setSection("stats")}
             onGoSettings={() => setSection("settings")}
             course={course}
-            importantCount={importantQuestions.length}
+            seguroCount={seguroExamQuestions.length}
+            importantCount={guideFinalQuestions.length}
           />
           <section className="coverage-strip">
             <div>

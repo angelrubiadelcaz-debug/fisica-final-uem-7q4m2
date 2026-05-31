@@ -2,6 +2,33 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Flag, Send } from "lucide-react";
 import MathText from "./MathText";
 import TheoryBox from "./TheoryBox";
 
+function SolutionDetails({ question }) {
+  const steps = question.solucion || question.solucionPasoAPaso || [];
+  const normalizedSteps = Array.isArray(steps) ? steps : [steps];
+
+  if (!normalizedSteps.length && !question.trampaTipica && !question.importancia) return null;
+
+  return (
+    <div className="question-solution-stack">
+      {question.importancia && <span className="importance-pill">{question.importancia}</span>}
+      {normalizedSteps.length > 0 && (
+        <section className="solution-box">
+          <strong>Solucion paso a paso</strong>
+          {normalizedSteps.map((step) => (
+            <MathText as="p" key={step}>{step}</MathText>
+          ))}
+        </section>
+      )}
+      {question.trampaTipica && (
+        <section className="mistake-box solution-mistake">
+          <strong>Trampa tipica</strong>
+          <MathText as="p">{question.trampaTipica}</MathText>
+        </section>
+      )}
+    </div>
+  );
+}
+
 export default function QuestionCard({
   question,
   current,
@@ -61,6 +88,7 @@ export default function QuestionCard({
                 <strong>{selected === question.correcta ? "Correcta" : "Revisa esta"}</strong>
                 <MathText as="p">{question.explicacion}</MathText>
                 {question.formula && <MathText as="div" block className="math-card-formula">{question.formula}</MathText>}
+                <SolutionDetails question={question} />
               </div>
             </div>
           )}

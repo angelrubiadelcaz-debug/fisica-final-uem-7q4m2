@@ -22,6 +22,7 @@ export default function SetupPanel({
   onTheoryModeChange,
   onStart,
   onStartFinal,
+  onStartSeguro,
   onStartImportant,
   onPracticeFailed,
   onGoStudy,
@@ -30,6 +31,7 @@ export default function SetupPanel({
   onGoStats,
   onGoSettings,
   course,
+  seguroCount = 0,
   importantCount = 0,
 }) {
   const countOptions = [10, 20, 30, 40, 60, 100, maxCount]
@@ -44,6 +46,13 @@ export default function SetupPanel({
           <strong>Empezar test</strong>
           <span>Preguntas tipo examen con correccion final.</span>
         </button>
+        {seguroCount > 0 && (
+          <button className="quick-start-card seguro-card" type="button" onClick={onStartSeguro}>
+            <Star size={22} />
+            <strong>Seguro examen</strong>
+            <span>{seguroCount} preguntas rapidas de MAS y ondas con solucion paso a paso.</span>
+          </button>
+        )}
         {importantCount > 0 && (
           <button className="quick-start-card important-card" type="button" onClick={onStartImportant}>
             <Star size={22} />
@@ -143,7 +152,7 @@ export default function SetupPanel({
         </div>
 
         <div className="segmented type-segmented" aria-label="Tipo de pregunta">
-          {["all", ...questionTypes.filter((value) => ["guia final", "calculo corto", "teoria", "formula", "unidades", "interpretacion fisica", "interpretacion", "sintaxis", "comparacion", "trampa tipica", "tarjetas"].includes(value))].map((value) => (
+          {["all", ...questionTypes.filter((value) => ["seguro examen", "guia final", "calculo corto", "teoria", "formula", "unidades", "interpretacion fisica", "interpretacion", "sintaxis", "comparacion", "trampa tipica", "tarjetas"].includes(value))].map((value) => (
             <button
               key={value}
               className={questionType === value ? "active" : ""}
