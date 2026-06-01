@@ -285,6 +285,15 @@ button.primary:hover:not(:disabled) {
   color: #b45309;
 }
 
+.quick-start-card.professor-card {
+  border-color: #fed7aa;
+  background: #fff7ed;
+}
+
+.quick-start-card.professor-card svg {
+  color: #c2410c;
+}
+
 .code-card-snippet {
   margin: 0;
   padding: 12px;

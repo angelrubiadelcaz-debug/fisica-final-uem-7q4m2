@@ -13,6 +13,7 @@ export const courses = [
     searchPlaceholder: "Gauss, Carnot, unidad...",
     studyDescription: "Tarjetas cortas para reconocer conceptos, formulas y trampas de test.",
     setupSummary: [
+      "Test profesor 2025 separado del banco general",
       "Nuevo bloque Seguro examen con MAS y ondas de repaso rapido",
       "Bloque prioritario con todas las preguntas de GUIA_ESTUDIO_EXAMEN.pdf",
       "Enunciados de una frase o calculo directo",

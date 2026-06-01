@@ -410,6 +410,8 @@ El banco global combina:
 
 En Fisica, `src/data/allQuestions.js` une el banco historico con `src/data/physics/guiaFinalQuestions.js` y `src/data/physics/seguroExamenQuestions.js`. Las preguntas de la guia aparecen en `Guia final PDF`; las de repaso urgente aparecen en `Seguro examen`, con solucion paso a paso, trampa tipica y fuente/etiqueta de importancia.
 
+El `Test profesor 2025` esta separado a proposito: sus 50 preguntas salen de `src/data/physics/professorExam2025Questions.js` y no se mezclan en el banco general, filtros, falladas ni estadisticas acumuladas. Se abre desde su tarjeta propia en la pantalla inicial de test.
+
 En POO, `src/data/poo/index.js` une `questions.js` y `theoryQuestions.js`. La interfaz permite filtrar por tipo:
 
 - guia final,
@@ -461,6 +463,7 @@ En POO, `src/data/poo/index.js` une `questions.js` y `theoryQuestions.js`. La in
 - `src/data/courses/index.js`: registro de asignaturas.
 - `src/data/physics/guiaFinalQuestions.js`: preguntas prioritarias convertidas desde `GUIA_ESTUDIO_EXAMEN.pdf`.
 - `src/data/physics/seguroExamenQuestions.js`: preguntas rapidas marcadas como `Seguro examen`, con solucion paso a paso y trampa tipica.
+- `src/data/physics/professorExam2025Questions.js`: test exacto del profesor de 2025, separado del banco general.
 - `src/data/poo/coreConcepts.js`: conceptos base de Programacion Orientada a Objetos.
 - `src/data/theoryQuestions.js`: preguntas teoricas generadas desde tarjetas.
 - `src/data/allQuestions.js`: banco global combinado.

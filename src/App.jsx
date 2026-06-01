@@ -43,6 +43,7 @@ export default function App() {
   const formulas = course?.data.formulas || course?.data.cheatsheet || [];
   const studyCards = course?.data.studyCards || [];
   const studyTopics = course?.data.studyTopics || [];
+  const professorExam2025Questions = course?.data.professorExam2025Questions || [];
   const [section, setSection] = useState("test");
   const [studyView, setStudyView] = useState("cards");
   const [selectedTopics, setSelectedTopics] = useState(["all"]);
@@ -53,6 +54,7 @@ export default function App() {
   const [mode, setMode] = useState("examen");
   const [theoryMode, setTheoryMode] = useState("con-teoria");
   const [quizQuestions, setQuizQuestions] = useState([]);
+  const [quizSource, setQuizSource] = useState("bank");
   const [answers, setAnswers] = useState({});
   const [current, setCurrent] = useState(0);
   const [result, setResult] = useState(null);
@@ -76,6 +78,7 @@ export default function App() {
     setSearch("");
     setCount(DEFAULT_COUNT);
     setQuizQuestions([]);
+    setQuizSource("bank");
     setAnswers({});
     setCurrent(0);
     setResult(null);
@@ -308,8 +311,9 @@ export default function App() {
     syncCount(getFilteredQuestions(questions, selectedTopics, difficulty, value, questionType).length);
   }
 
-  function beginQuiz(nextQuestions, nextMode = mode) {
+  function beginQuiz(nextQuestions, nextMode = mode, nextSource = "bank") {
     setQuizQuestions(nextQuestions);
+    setQuizSource(nextSource);
     setAnswers({});
     setCurrent(0);
     setResult(null);
@@ -359,9 +363,26 @@ export default function App() {
     beginQuiz(pickQuestions(guideFinalQuestions, Math.min(count, guideFinalQuestions.length)), "repaso");
   }
 
+  function startProfessorExam2025() {
+    if (!professorExam2025Questions.length) return;
+    setSelectedTopics(["all"]);
+    setDifficulty("all");
+    setQuestionType("all");
+    setSearch("");
+    setCount(professorExam2025Questions.length);
+    beginQuiz(professorExam2025Questions, "repaso", "professor-2025");
+  }
+
   function practiceFailed() {
     if (!failedQuestions.length) return;
     beginQuiz(pickQuestions(failedQuestions, failedQuestions.length), "repaso");
+  }
+
+  function practiceWrongFromCurrentResult() {
+    if (!result) return;
+    const wrongQuestions = result.details.filter((item) => !item.isCorrect).map((item) => item.question);
+    if (!wrongQuestions.length) return;
+    beginQuiz(wrongQuestions, "repaso", quizSource);
   }
 
   function practiceStudyConcept(card) {
@@ -391,15 +412,18 @@ export default function App() {
   function finishQuiz() {
     const nextResult = gradeQuiz(quizQuestions, answers);
     setResult(nextResult);
-    setProgress((currentProgress) => mergeResultIntoProgress(currentProgress, nextResult));
+    if (quizSource !== "professor-2025") {
+      setProgress((currentProgress) => mergeResultIntoProgress(currentProgress, nextResult));
+    }
   }
 
   function retrySameQuiz() {
-    beginQuiz(quizQuestions, mode);
+    beginQuiz(quizQuestions, mode, quizSource);
   }
 
   function resetToSetup() {
     setQuizQuestions([]);
+    setQuizSource("bank");
     setAnswers({});
     setCurrent(0);
     setResult(null);
@@ -426,6 +450,7 @@ export default function App() {
     saveSelectedCourseId("");
     setSelectedCourseId("");
     setQuizQuestions([]);
+    setQuizSource("bank");
     setAnswers({});
     setResult(null);
   }
@@ -527,7 +552,7 @@ export default function App() {
         <ResultsPanel
           result={result}
           onRetry={retrySameQuiz}
-          onPracticeFailed={practiceFailed}
+          onPracticeFailed={practiceWrongFromCurrentResult}
           onNewQuiz={resetToSetup}
         />
       ) : testActive ? (
@@ -586,6 +611,7 @@ export default function App() {
             onStartFinal={startFinalSimulation}
             onStartSeguro={startSeguroExam}
             onStartImportant={startImportantGuide}
+            onStartProfessorExam={startProfessorExam2025}
             onPracticeFailed={practiceFailed}
             onGoStudy={() => goStudy("cards")}
             onGoLastMinute={() => goStudy("last-minute")}
@@ -595,6 +621,7 @@ export default function App() {
             course={course}
             seguroCount={seguroExamQuestions.length}
             importantCount={guideFinalQuestions.length}
+            professorExamCount={professorExam2025Questions.length}
           />
           <section className="coverage-strip">
             <div>

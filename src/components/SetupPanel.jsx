@@ -24,6 +24,7 @@ export default function SetupPanel({
   onStartFinal,
   onStartSeguro,
   onStartImportant,
+  onStartProfessorExam,
   onPracticeFailed,
   onGoStudy,
   onGoLastMinute,
@@ -33,6 +34,7 @@ export default function SetupPanel({
   course,
   seguroCount = 0,
   importantCount = 0,
+  professorExamCount = 0,
 }) {
   const countOptions = [10, 20, 30, 40, 60, 100, maxCount]
     .filter((value, index, list) => value > 0 && value <= maxCount && list.indexOf(value) === index);
@@ -58,6 +60,13 @@ export default function SetupPanel({
             <Star size={22} />
             <strong>Guia final PDF</strong>
             <span>{importantCount} preguntas prioritarias: estas son las que mas conviene dominar.</span>
+          </button>
+        )}
+        {professorExamCount > 0 && (
+          <button className="quick-start-card professor-card" type="button" onClick={onStartProfessorExam}>
+            <ClipboardCheck size={22} />
+            <strong>Test profesor 2025</strong>
+            <span>{professorExamCount} preguntas separadas del banco general.</span>
           </button>
         )}
         <button className="quick-start-card" type="button" onClick={onGoStudy}>

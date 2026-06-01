@@ -87,5 +87,6 @@ export function questionTypeLabel(value) {
     comparacion: "Comparacion",
     "seguro examen": "Seguro examen",
     "guia final": "Guia final",
+    "test profesor 2025": "Test profesor 2025",
   }[value] || value;
 }
