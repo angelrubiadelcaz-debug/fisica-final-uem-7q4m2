@@ -194,6 +194,8 @@ Los datos actuales estan repartidos asi:
 ```text
 src/data/physics/index.js
 src/data/poo/index.js
+src/data/projectEngineering/index.js
+src/data/projectEngineering/questions.js
 src/data/poo/coreConcepts.js
 src/data/poo/questions.js
 src/data/poo/theoryQuestions.js

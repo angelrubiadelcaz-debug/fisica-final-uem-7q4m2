@@ -1,5 +1,6 @@
 import * as physicsData from "../physics/index.js";
 import * as pooData from "../poo/index.js";
+import * as projectEngineeringData from "../projectEngineering/index.js";
 
 export const courses = [
   {
@@ -62,6 +63,35 @@ export const courses = [
       ],
     },
     data: pooData,
+  },
+  {
+    id: "proyecto-ingenieria",
+    name: "Proyecto de Ingeniería",
+    shortName: "Proyecto",
+    eyebrow: "Proyecto de Ingeniería",
+    title: "Test de Proyecto de Ingeniería",
+    resourceLabel: "Conceptos clave",
+    resourceDescription: "Preguntas tipo test sobre memoria, requisitos, pruebas, licitación y planificación.",
+    searchPlaceholder: "requisitos, validacion, licitacion, camino critico...",
+    studyDescription: "Preguntas tipo test de Proyecto de Ingeniería separadas del resto de asignaturas.",
+    setupSummary: [
+      "Banco independiente de Proyecto de Ingeniería",
+      "Preguntas clasificadas por memoria, estado del arte, requisitos y pruebas",
+      "Incluye licitación, estimación financiera, planificación y defensa",
+      "No se mezcla con Física ni con Programación Orientada a Objetos",
+    ],
+    tutor: {
+      title: "Dudas de Proyecto",
+      welcome:
+        "Soy tu tutor local de Proyecto de Ingeniería. Respondo con el banco de preguntas de memoria, requisitos, pruebas, licitación, estimación, planificación y defensa.",
+      starters: [
+        "Diferencia entre verificación y validación",
+        "Qué es una tarea crítica",
+        "Qué debe incluir el estado del arte",
+        "Hazme una pregunta de requisitos",
+      ],
+    },
+    data: projectEngineeringData,
   },
 ];
 
